@@ -1,6 +1,7 @@
 /*
  * command line entrance for longest word chain 
  */
+#include <cstdio>
 #include "se_word_chain_core.hpp"
 
 int main(int argc, char** argv) {
@@ -11,5 +12,6 @@ int main(int argc, char** argv) {
     // calculate
     //
     // output to target file
+    printf("hello world\n");
     return 0;
 }

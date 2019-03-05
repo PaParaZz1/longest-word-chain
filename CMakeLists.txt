@@ -1,0 +1,20 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
+PROJECT(longest_word_chain)
+
+SET(ALL_INCLUDE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/
+	)
+INCLUDE_DIRECTORIES(${ALL_INCLUDE})
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g")
+
+SET(ALL_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/se_word_chain_core.cpp
+)
+
+ADD_EXECUTABLE(Wordlist
+    ${ALL_SRC}
+)
+
