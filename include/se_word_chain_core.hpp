@@ -59,6 +59,8 @@ class WordMapSet {
         set<string, std::greater<string> > m_word_set;
 };
 
+string tolower(string str);
+
 se_errcode ExtractWord(const string& input_text, vector<string>& input_buffer);
 
 se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<string>& output_buffer, LongestWordChainType& longest_type, const char& head, const char& tail, bool enable_circle);

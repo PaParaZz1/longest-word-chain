@@ -7,6 +7,12 @@
 using std::vector;
 using std::string;
 
+string tolower(string str){
+    for(int i = 0; i < str.length(); i++)
+        str[i] = tolower(str[i]);
+    return str;
+}
+
 se_errcode ExtractWord(const string& input_text, vector<string>& input_buffer) {
     /*
      * Brief:
@@ -18,6 +24,18 @@ se_errcode ExtractWord(const string& input_text, vector<string>& input_buffer) {
      * Return:
      *     all: SE_OK
      */
+    int len=input_text.length();
+    for(int i=0;i<len;i++){
+        if(isalpha(input_text[i])){
+            for(int j=i;j<len;j++){
+                if(!isalpha(input_text[j])){
+                    input_buffer.push_back(tolower(input_text.substr(i,j-i)));
+                    i=j;
+                    break;
+                }
+            }
+        }
+    }
     return SE_OK;
 }
 
@@ -36,6 +54,10 @@ se_errcode OutputTransform(const vector<string>& output_buffer, string& output_t
      * Return:
      *     all: SE_OK
      */
+    int size=output_buffer.size();
+    for(int i=0;i<size;i++){
+        output_text+=output_buffer[i]+"\n";
+    }
     return SE_OK;
 }
 
