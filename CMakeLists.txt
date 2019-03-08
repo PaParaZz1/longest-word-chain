@@ -14,7 +14,7 @@ SET(ALL_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/se_word_chain_core.cpp
 )
 
-ADD_EXECUTABLE(Wordlist
+ADD_EXECUTABLE(Wordlist.exe
     ${ALL_SRC}
 )
 

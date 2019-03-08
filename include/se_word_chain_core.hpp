@@ -6,11 +6,58 @@
 
 #include <vector>
 #include <string>
+#include <set>
 #include "se_word_chain.hpp"
 #include "se_word_chain_utils.hpp"
 
 using std::vector;
 using std::string;
+using std::set;
+
+class Word {
+    public:
+        Word(const string& word) : m_word(word) {
+            m_head = m_word[0];
+            m_tail = m_word[m_word.size() - 1];
+        } 
+        char GetHead() const {
+            return m_head;
+        }
+        char GetTail() const {
+            return m_tail;
+        }
+        string GetWord() const {
+            return m_word;
+        }
+    private:
+        char m_head;
+        char m_tail;
+        string m_word;
+};
+
+class WordMapSet {
+    /*
+     * word with the same head and tail in a set
+     */
+    public:
+        WordMapSet(const char head, const char tail, const string& key) : m_head(head), m_tail(tail), m_key(key) {
+            m_current_longest_len = 0;
+        }
+        se_errcode AppendWord(const string& word);
+        string GetLongestWord() const {
+            return m_current_longest_word;
+        }
+        int GetLongestLen() const {
+            return m_current_longest_len;
+        }
+    private:
+        char m_head;
+        char m_tail;
+        string m_key;
+        string m_current_longest_word;
+        int m_current_longest_len;
+        set<string, std::greater<string> > m_word_set;
+};
 
 se_errcode ExtractWord(const string& input_text, vector<string>& input_buffer);
 
