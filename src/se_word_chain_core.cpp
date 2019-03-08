@@ -40,7 +40,24 @@ se_errcode OutputTransform(const vector<string>& output_buffer, string& output_t
 }
 
 se_errcode Calculate(const string& input_text, string& output_text, LongestWordChainType& longest_type, const char& head, const char& tail, bool enable_circle) {
+    int ret = SE_OK;
+    vector<string> input_buffer;
+    vector<string> output_buffer;
+    if (ret ==ExtractWord(input_text, input_buffer) != SE_OK) {
+        goto ERROR_CAL;
+    }
+
+    if (ret == CalculateLongestChain(input_buffer, output_buffer, longest_type, head, tail, enable_circle) != SE_OK) {
+        goto ERROR_CAL;
+    }
+
+    if (ret == OutputTransform(output_buffer, output_text) != SE_OK) {
+        goto ERROR_CAL;
+    }
     return SE_OK;
+    
+ERROR_CAL:
+    return ret;
 }
 
 se_errcode WordMapSet::AppendWord(const string& word) {
