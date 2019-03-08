@@ -8,6 +8,16 @@ using std::vector;
 using std::string;
 
 se_errcode ExtractWord(const string& input_text, vector<string>& input_buffer) {
+    /*
+     * Brief:
+     *     extract all the correct word in the input, transform it into lower case letters and store it in input buffer
+     *     all the word in the input_text are seperated with non-alpha character
+     * Param:
+     *     input_text: input text including word
+     *     input_buffer: a vector including all the correctly seperated word
+     * Return:
+     *     all: SE_OK
+     */
     return SE_OK;
 }
 
@@ -16,6 +26,16 @@ se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<stri
 }
 
 se_errcode OutputTransform(const vector<string>& output_buffer, string& output_text) {
+    /*
+     * Brief:
+     *     transform word into output text
+     *     all the word in output_text need to be seperated with line break
+     * Param:
+     *     output_buffer: a buffer including all the correct word to be output
+     *     output_text: a string including all the word in correct form
+     * Return:
+     *     all: SE_OK
+     */
     return SE_OK;
 }
 
