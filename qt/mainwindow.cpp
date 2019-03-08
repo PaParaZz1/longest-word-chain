@@ -47,11 +47,8 @@ void MainWindow::on_pushButton_help_clicked()
 
 void MainWindow::on_pushButton_run_clicked()
 {
-    bool para_w = ui->radioButton_w->isChecked();
-    bool para_c = ui->radioButton_c->isChecked();
-    bool para_h = ui->radioButton_h->isChecked();
-    bool para_t = ui->radioButton_t->isChecked();
-    int para=para_w?1:(para_c?2:(para_h?3:(para_t?4:5)));
+    int para=ui->radioButton_w->isChecked()?1:2;
+    bool ring=ui->checkBox_loop->isChecked();
     string content = ui->inputArea->toPlainText().toStdString();
     //call corresponding function
     cout<<"onclick_run"<<endl;
