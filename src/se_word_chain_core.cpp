@@ -14,6 +14,7 @@ using Dmap = unordered_map<char, int>;
 SearchInterface::~SearchInterface() {}
 
 se_errcode NaiveSearch::Search() {
+
     return SE_OK;
 }
 
@@ -277,16 +278,18 @@ ERROR_CAL:
 }
 
 se_errcode WordMapElement::AppendWord(const string& word) {
-    auto iter = m_word_set.find(word);
-    if (iter != m_word_set.end()) {
-        return SE_REPEAT_WORD;
+    int size = word.size();
+    auto iter = m_word_set.begin();
+    for (; iter != m_word_set.end(); ++iter) {
+        if (iter->data == word) {
+            return SE_REPEAT_WORD;
+        }
+        if (iter->size < size) {
+            break;
+        }
     }
+    m_word_set.insert(iter, WordElement(size, word));
+    m_current_longest_len = m_word_set[0].size;
 
-    m_word_set.insert(word);
-    int cur_len = word.size();
-    if (cur_len > m_current_longest_len) {
-        m_current_longest_len = cur_len;
-        m_current_longest_word = word;
-    }
     return SE_OK;
 }

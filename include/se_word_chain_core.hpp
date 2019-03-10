@@ -64,22 +64,34 @@ class WordMapElement {
             return m_current_longest_len;
         }
     private:
+        typedef struct _WordElement{
+            string data;
+            int size;
+            _WordElement(int _size, string _data) {
+                size = _size;
+                data = _data;
+            }
+        } WordElement;
         char m_head;
         char m_tail;
         string m_key;
         string m_current_longest_word;
         int m_current_longest_len;
-        set<string, std::greater<string> > m_word_set;
+        vector<WordElement> m_word_set;
 };
 
 class DistanceElement{
     public:
-        DistanceElement() {
+        DistanceElement(const LongestWordChainType& longest_type) : m_longest_type(longest_type) {
             m_letter_distance = 0;
             m_word_distance = 0;
         }
         int GetDistance() const {
-            return m_letter_distance;
+            switch (m_longest_type) {
+                case word_longest: return GetWordDistance();
+                case letter_longest: return GetLetterDistance();
+                default: return 0;
+            }
         }
         void CopyWordBuffer(vector<string>& output_buffer) const {
             output_buffer.assign(m_word_buffer.begin(), m_word_buffer.end());
@@ -87,6 +99,7 @@ class DistanceElement{
         //se_errcode ApeendChainWord
     private:
         vector<string> m_word_buffer;
+        LongestWordChainType m_longest_type;
         int m_letter_distance;
         int m_word_distance;
         int GetLetterDistance() const {
