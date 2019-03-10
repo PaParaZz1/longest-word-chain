@@ -7,12 +7,14 @@
 #include <vector>
 #include <string>
 #include <set>
+#include <unordered_map>
 #include "se_word_chain.hpp"
 #include "se_word_chain_utils.hpp"
 
 using std::vector;
 using std::string;
 using std::set;
+using std::unordered_map;
 
 class Word {
     public:
@@ -73,6 +75,10 @@ class WordMapElement {
 string tolower(string str);
 
 se_errcode ExtractWord(const string& input_text, vector<string>& input_buffer);
+
+se_errcode GenerateWordMap(const vector<string>& input_buffer, unordered_map<char, unordered_map<char, WordMapElement> >& origin_word_map);
+
+se_errcode CheckCircle(const unordered_map<char, unordered_map<char, WordMapElement> >& origin_word_map, bool& has_circle);
 
 se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<string>& output_buffer, LongestWordChainType& longest_type, const char& head, const char& tail, bool enable_circle);
 

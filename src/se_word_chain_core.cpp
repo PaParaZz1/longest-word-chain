@@ -8,6 +8,8 @@
 using std::vector;
 using std::string;
 using std::unordered_map;
+using Cmap = unordered_map<char, WordMapElement>;
+using CCmap = unordered_map<char, unordered_map<char, WordMapElement> >;
 
 string tolower(string str){
     for(int i = 0; i < str.length(); i++)
@@ -42,8 +44,7 @@ se_errcode ExtractWord(const string& input_text, vector<string>& input_buffer) {
 }
 
 se_errcode GenerateWordMap(const vector<string>& input_buffer, unordered_map<char, unordered_map<char, WordMapElement> >& origin_word_map) {
-    using Cmap = unordered_map<char, WordMapElement>;
-    using CCmap = unordered_map<char, unordered_map<char, WordMapElement> >;
+    se_errcode ret = SE_OK;
 
     for (auto iter = input_buffer.begin(); iter != input_buffer.end(); ++iter) {
         string item = *iter;
@@ -59,21 +60,54 @@ se_errcode GenerateWordMap(const vector<string>& input_buffer, unordered_map<cha
             if (tail_find_flag == tail_map.end()) {
                 tail_map.insert(Cmap::value_type(word_item.GetTail(), WordMapElement(word_item)));
             } else {
-                se_errcode ret = SE_OK;
                 if ((ret = tail_find_flag->second.AppendWord(word_item.GetWord())) != SE_OK) {
                     fprintf(stderr, "repeat word: %s\n", word_item.GetWord().c_str());
-                    return ret;
                 }
             }
         }
     }
+    return ret;
+}
+
+se_errcode CheckCircle(const unordered_map<char, unordered_map<char, WordMapElement> >& origin_word_map, bool& has_circle) {
+    /*
+     * Brief:
+     *     check whether there is circle in map
+     * Param:
+     *     origin_word_map: word map established by head and tail letter(<head, <tail, element>)
+     *     has_circle: whether has circle in map
+     * Return:
+     *     if has circle, return true, otherwise return false
+     */
     return SE_OK;
 }
 
 se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<string>& output_buffer, LongestWordChainType& longest_type, const char& head, const char& tail, bool enable_circle) {
-    unordered_map<char, unordered_map<char, WordMapElement> > origin_word_map;
-    
-    return SE_OK;
+    CCmap origin_word_map;
+    se_errcode ret = SE_OK;
+    // generate word map
+    ret = GenerateWordMap(input_buffer, origin_word_map);
+    switch (ret) {
+        case SE_REPEAT_WORD: ret = SE_OK;// fall through
+        case SE_OK: break;
+        default: return ret;
+    }
+    // check circle
+    bool has_circle;
+    CheckCircle(origin_word_map, has_circle);
+    if (!enable_circle && has_circle) {
+        return SE_HAS_CIRCLE;
+    }
+    // calculate longest chain
+    switch (longest_type) {
+        case word_longest:
+        case letter_longest:
+        default: {
+            fprintf(stderr, "invalid longest_type argument: %d\n", longest_type);
+            return SE_INVALID_LONGEST_TYPE;
+        }
+    }
+    return ret;
 }
 
 se_errcode OutputTransform(const vector<string>& output_buffer, string& output_text) {
