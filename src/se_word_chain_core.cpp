@@ -79,6 +79,48 @@ se_errcode CheckCircle(const unordered_map<char, unordered_map<char, WordMapElem
      * Return:
      *     if has circle, return true, otherwise return false
      */
+    
+    Dmap indegree;
+    //generate indegree map
+    for(int i=0;i<26;i++){
+        char target = i+'a';
+        auto iter=origin_word_map.find(target);
+        if(iter==origin_word_map.end()){
+            indegree.insert(Dmap::value_type(target,0));
+        }else{
+            int size=iter->second.size();
+            indegree.insert(Dmap::value_type(target,size));
+        }
+    }
+    bool change=true;
+    //delete points which have 0-indegree
+    //update related points' indegree
+    while(change){
+        change=false;
+        for(int i=0;i<26;i++){
+            char target = i+'a';
+            auto iter=indegree.find(target);
+            if(iter->second==0){
+                change=true;
+                iter->second=-1;
+                for(int j=0;j<26;j++){
+                    char key=j+'a';
+                    auto iter_temp=origin_word_map.find(key)->second;
+                    if(iter_temp.find(target)!=iter_temp.end()){
+                        indegree.find(key)->second-=1;
+                    }
+                }
+            }
+        }
+    }
+    //if there is a point cannot be deleted,the graph has a loop
+    has_circle=false;
+    for(auto iter=indegree.begin();iter!=indegree.end();iter++){
+        if(iter->second>0){
+            has_circle=true;
+            break;
+        }
+    }
     return SE_OK;
 }
 
