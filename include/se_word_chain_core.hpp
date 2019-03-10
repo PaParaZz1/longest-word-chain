@@ -72,6 +72,54 @@ class WordMapElement {
         set<string, std::greater<string> > m_word_set;
 };
 
+class DistanceElement{
+    public:
+        DistanceElement() {
+            m_letter_distance = 0;
+            m_word_distance = 0;
+        }
+        int GetDistance() const {
+            return m_letter_distance;
+        }
+        void CopyWordBuffer(vector<string>& output_buffer) const {
+            output_buffer.assign(m_word_buffer.begin(), m_word_buffer.end());
+        }
+        //se_errcode ApeendChainWord
+    private:
+        vector<string> m_word_buffer;
+        int m_letter_distance;
+        int m_word_distance;
+        int GetLetterDistance() const {
+            return m_letter_distance;
+        }
+        int GetWordDistance() const {
+            return m_word_distance;
+        }
+};
+
+class SearchInterface {
+    public:
+        virtual ~SearchInterface() = 0;
+        virtual se_errcode Search() = 0;
+        virtual se_errcode LookUp(vector<string>& output_buffer, const char& head, const char& tail) const = 0;
+};
+
+class NaiveSearch : public SearchInterface{
+    using HWmap = unordered_map<char, unordered_map<char, WordMapElement> >;
+    using TWmap = unordered_map<char, WordMapElement>;
+    using HDmap = unordered_map<char, unordered_map<char, DistanceElement> >;
+    using TDmap = unordered_map<char, DistanceElement>;
+    public:
+        NaiveSearch(const HWmap& map, const LongestWordChainType& type) : m_wmap(map), m_type(type){}
+        ~NaiveSearch() {}
+        se_errcode Search();
+        se_errcode LookUp(vector<string>& output_buffer, const char& head, const char& tail) const;
+    private:
+        HWmap m_wmap;
+        HDmap m_dmap;
+        LongestWordChainType m_type;
+};
+
 string tolower(string str);
 
 se_errcode ExtractWord(const string& input_text, vector<string>& input_buffer);
@@ -80,7 +128,7 @@ se_errcode GenerateWordMap(const vector<string>& input_buffer, unordered_map<cha
 
 se_errcode CheckCircle(const unordered_map<char, unordered_map<char, WordMapElement> >& origin_word_map, bool& has_circle);
 
-se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<string>& output_buffer, LongestWordChainType& longest_type, const char& head, const char& tail, bool enable_circle);
+se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<string>& output_buffer, const LongestWordChainType& longest_type, const char& head, const char& tail, bool enable_circle);
 
 se_errcode OutputTransform(const vector<string>& output_buffer, string& output_text);
 
