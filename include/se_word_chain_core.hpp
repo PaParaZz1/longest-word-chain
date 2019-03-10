@@ -19,6 +19,10 @@ class Word {
         Word(const string& word) : m_word(word) {
             m_head = m_word[0];
             m_tail = m_word[m_word.size() - 1];
+            char tmp[2];
+            tmp[0] = m_head;
+            tmp[1] = m_tail;
+            m_key = string(tmp);
         } 
         char GetHead() const {
             return m_head;
@@ -26,21 +30,28 @@ class Word {
         char GetTail() const {
             return m_tail;
         }
+        string GetKey() const {
+            return m_key;
+        }
         string GetWord() const {
             return m_word;
         }
     private:
         char m_head;
         char m_tail;
+        string m_key;
         string m_word;
 };
 
-class WordMapSet {
+class WordMapElement {
     /*
      * word with the same head and tail in a set
      */
     public:
-        WordMapSet(const char head, const char tail, const string& key) : m_head(head), m_tail(tail), m_key(key) {
+        WordMapElement(Word& word) {
+            m_head = word.GetHead();
+            m_tail = word.GetTail();
+            m_key = word.GetKey();
             m_current_longest_len = 0;
         }
         se_errcode AppendWord(const string& word);
