@@ -50,7 +50,10 @@ class WordMapElement {
      * word with the same head and tail in a set
      */
     public:
-        WordMapElement(Word& word) {
+        WordMapElement() {
+            fprintf(stderr, "error call WordMapElement\n");
+        }
+        explicit WordMapElement(Word& word) {
             m_head = word.GetHead();
             m_tail = word.GetTail();
             m_key = word.GetKey();
@@ -82,6 +85,9 @@ class WordMapElement {
 
 class DistanceElement{
     public:
+        DistanceElement() {
+            fprintf(stderr, "error call WordMapElement\n");
+        }
         DistanceElement(const LongestWordChainType& longest_type) : m_longest_type(longest_type) {
             m_letter_distance = 0;
             m_word_distance = 0;
@@ -93,10 +99,22 @@ class DistanceElement{
                 default: return 0;
             }
         }
+        void SetWordDistance(int distance) {
+            m_word_distance = distance;
+        }
+        void SetLetterDistance(int distance) {
+            m_letter_distance = distance;
+        }
+        void SetDistance(int distance) {
+            switch (m_longest_type) {
+                case word_longest: SetWordDistance(distance); break;
+                case letter_longest: SetLetterDistance(distance); break;
+                default: return;
+            }
+        }
         void CopyWordBuffer(vector<string>& output_buffer) const {
             output_buffer.assign(m_word_buffer.begin(), m_word_buffer.end());
         }
-        //se_errcode ApeendChainWord
     private:
         vector<string> m_word_buffer;
         LongestWordChainType m_longest_type;
@@ -123,7 +141,21 @@ class NaiveSearch : public SearchInterface{
     using HDmap = unordered_map<char, unordered_map<char, DistanceElement> >;
     using TDmap = unordered_map<char, DistanceElement>;
     public:
-        NaiveSearch(const HWmap& map, const LongestWordChainType& type) : m_wmap(map), m_type(type){}
+        NaiveSearch(const HWmap& map, const LongestWordChainType& type) : m_wmap(map), m_type(type){
+            for (char t1 = 'a'; t1 <= 'z'; ++t1) {
+                for (char t2 = 'a'; t2 <= 'z'; ++t2) {
+                    if (t2 == 'a') {
+                        TDmap item;
+                        item.insert(TDmap::value_type(t2, DistanceElement(m_type)));
+                        m_dmap.insert(HDmap::value_type(t1, item));
+                    } else {
+                        auto iter = m_dmap.find(t1);
+                        iter->second.insert(TDmap::value_type(t2, DistanceElement(m_type)));
+                    }
+                }
+            }
+            m_cur_search_len = 0;
+        }
         ~NaiveSearch() {}
         se_errcode Search();
         se_errcode LookUp(vector<string>& output_buffer, const char& head, const char& tail) const;
@@ -131,6 +163,8 @@ class NaiveSearch : public SearchInterface{
         HWmap m_wmap;
         HDmap m_dmap;
         LongestWordChainType m_type;
+        int m_cur_search_len;
+        se_errcode DfsSearch(char cur_head);
 };
 
 string tolower(string str);

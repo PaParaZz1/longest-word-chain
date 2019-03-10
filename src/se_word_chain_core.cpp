@@ -13,8 +13,37 @@ using CCmap = unordered_map<char, unordered_map<char, WordMapElement> >;
 using Dmap = unordered_map<char, int>;
 SearchInterface::~SearchInterface() {}
 
-se_errcode NaiveSearch::Search() {
+se_errcode NaiveSearch::DfsSearch(char cur_head) {
+    auto iter_h = m_wmap.find(cur_head);
+    TWmap tail_map = iter_h->second;
+    for (auto iter_t = tail_map.begin(); iter_t != tail_map.end(); ++iter_t) {
+        auto&& item_word = m_wmap[cur_head][iter_t->first];
+        auto& item_dist = m_dmap[cur_head][iter_t->first];
+        if (item_word.GetLongestLen() + m_cur_search_len > item_dist.GetDistance()) {
+            item_dist.SetDistance(item_word.GetLongestLen() + m_cur_search_len);
+        }
+        DfsSearch(iter_t->first);
+    }
+    return SE_OK;
+}
 
+se_errcode NaiveSearch::Search() {
+    set<char> word_head_set;
+    set<char> word_tail_set;
+    for (auto iter_h = m_wmap.begin(); iter_h != m_wmap.end(); ++iter_h) {
+        char head = iter_h->first;
+        word_head_set.insert(head);
+        for (auto iter_t = iter_h->second.begin(); iter_t != iter_h->second.end(); ++iter_h) {
+            char tail = iter_t->first;
+            word_tail_set.insert(tail);
+        }
+    }
+    vector<char> head_vector(word_head_set.size());
+    auto iter_d = std::set_difference(word_head_set.begin(), word_head_set.end(), word_tail_set.begin(), word_tail_set.end(), head_vector.begin());
+    head_vector.resize(iter_d - head_vector.begin());
+    for (auto iter = head_vector.begin(); iter != head_vector.end(); ++iter) {
+        DfsSearch(*iter);
+    }
     return SE_OK;
 }
 
