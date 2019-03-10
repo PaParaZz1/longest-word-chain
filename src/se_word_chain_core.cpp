@@ -11,6 +11,76 @@ using std::unordered_map;
 using Cmap = unordered_map<char, WordMapElement>;
 using CCmap = unordered_map<char, unordered_map<char, WordMapElement> >;
 
+SearchInterface::~SearchInterface() {}
+
+se_errcode NaiveSearch::Search() {
+    return SE_OK;
+}
+
+se_errcode NaiveSearch::LookUp(vector<string>& output_buffer, const char& head, const char& tail) const {
+    se_errcode ret = SE_OK;
+    char longest_head = NO_ASSIGN_HEAD;
+    char longest_tail = NO_ASSIGN_TAIL;
+    int temp_head_longest = 0;
+
+    if (head == NO_ASSIGN_HEAD) {
+        for (auto iter_h = m_dmap.begin(); iter_h != m_dmap.end(); ++iter_h) {
+            auto tail_map = iter_h->second;
+            if (tail == NO_ASSIGN_TAIL) {
+                int temp_tail_longest = 0;
+                char longest_tail_temp = NO_ASSIGN_TAIL;
+                for (auto iter_t = tail_map.begin(); iter_t != tail_map.end(); ++iter_t) {
+                    if (iter_t->second.GetDistance() > temp_tail_longest) {
+                        temp_tail_longest = iter_t->second.GetDistance();
+                        longest_tail_temp = iter_t->first;
+                    }
+                }
+                if (temp_tail_longest > temp_head_longest) {
+                    temp_head_longest = temp_tail_longest;
+                    longest_head = iter_h->first;
+                    longest_tail = longest_tail_temp;
+                }
+            } else {
+                auto tail_find_iter = tail_map.find(tail);
+                if (tail_find_iter != tail_map.end()) {
+                    if (tail_find_iter->second.GetDistance() > temp_head_longest) {
+                        temp_head_longest = tail_find_iter->second.GetDistance();
+                        longest_head = iter_h->first;
+                        longest_tail = tail;
+                    }
+                }
+            }
+        }
+    } else {
+        if (tail == NO_ASSIGN_TAIL) {
+            longest_head = head;
+            auto tail_map_iter = m_dmap.find(head);
+            if (tail_map_iter != m_dmap.end()) {
+                auto tail_map = tail_map_iter->second;
+                for (auto iter_t = tail_map.begin(); iter_t != tail_map.end(); ++iter_t) {
+                    if (iter_t->second.GetDistance() > temp_head_longest) {
+                        temp_head_longest = iter_t->second.GetDistance();
+                        longest_tail = iter_t->first;
+                    }
+                }
+            }
+        } else {
+            longest_head = head;
+            longest_tail = tail;
+        }
+    }
+
+    if (temp_head_longest == 0) {
+        fprintf(stderr, "no available word chain for head(%c) and tail(%c)\n", head, tail);
+        return SE_NO_AVAILABLE_WORD_CHAIN;
+    } else {
+        auto tail_map_iter = m_dmap.find(longest_head);
+        auto element_iter = tail_map_iter->second.find(longest_tail);
+        element_iter->second.CopyWordBuffer(output_buffer);
+        return SE_OK;
+    }
+}
+
 string tolower(string str){
     for(int i = 0; i < str.length(); i++)
         str[i] = tolower(str[i]);
@@ -124,7 +194,22 @@ se_errcode CheckCircle(const unordered_map<char, unordered_map<char, WordMapElem
     return SE_OK;
 }
 
-se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<string>& output_buffer, LongestWordChainType& longest_type, const char& head, const char& tail, bool enable_circle) {
+se_errcode ChainSearch(const unordered_map<char, unordered_map<char, WordMapElement> >& origin_word_map, vector<string>& output_buffer, const LongestWordChainType& longest_type, const char& head, const char& tail) {
+    SearchInterface* handle_search = NULL;
+    int search_type = 0;
+    switch (search_type) {
+        case 0: {
+            handle_search = new NaiveSearch(origin_word_map, longest_type);
+            break;
+        }   
+    }
+    handle_search->Search();
+    handle_search->LookUp(output_buffer, head, tail);
+    delete(handle_search);
+    return SE_OK;
+}
+
+se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<string>& output_buffer, const LongestWordChainType& longest_type, const char& head, const char& tail, bool enable_circle) {
     CCmap origin_word_map;
     se_errcode ret = SE_OK;
     // generate word map
