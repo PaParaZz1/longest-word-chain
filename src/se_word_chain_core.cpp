@@ -10,7 +10,7 @@ using std::string;
 using std::unordered_map;
 using Cmap = unordered_map<char, WordMapElement>;
 using CCmap = unordered_map<char, unordered_map<char, WordMapElement> >;
-
+using Dmap = unordered_map<char, int>;
 SearchInterface::~SearchInterface() {}
 
 se_errcode NaiveSearch::Search() {
