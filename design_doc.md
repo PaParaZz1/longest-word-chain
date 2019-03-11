@@ -39,6 +39,13 @@
     OutputTransform
 
 ## 类功能说明:
+ - SearchInterface(全局搜索接口)
+   - 子类必须重写实现Search和LoopUp方法
+ - NaiveSearch（基于DFS的暴力搜索）
+ - DistanceElement 距离map基本元素
+ - WordMapElement 单词map基本元素
+ - Word 单词的基本信息 
+   
   
 
 ## 命令行：
