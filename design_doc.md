@@ -22,8 +22,24 @@
 ## 核心计算模块：
 
 - 从输入buffer中提取单词
+    ExtractWord
 - 根据指定模式进行计算，得到结果
+    CalculateLongestChain
+  - 生成单词图数据结构
+      GenerateWordMap
+  - 检查图是否有环
+      CheckCircle
+  - 搜索符合输入命令要求的单词链
+      ChainSearch
+    - 基于DFS的暴力搜索(NaiveSearch)
+        Search
+    - 根据头字母和尾字母在结果图中查找(NaiveSearch)
+        LookUp
 - 将结果单词变为指定格式存到结果buffer中
+    OutputTransform
+
+## 类功能说明:
+  
 
 ## 命令行：
 
