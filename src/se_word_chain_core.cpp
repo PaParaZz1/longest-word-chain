@@ -14,11 +14,16 @@ using Dmap = unordered_map<char, int>;
 SearchInterface::~SearchInterface() {}
 
 se_errcode NaiveSearch::DfsSearch(char cur_head) {
+    printf("cur head:%c\n", cur_head);
     auto iter_h = m_wmap.find(cur_head);
+    if (iter_h == m_wmap.end()) {
+        return SE_OK;
+    }
+
     TWmap tail_map = iter_h->second;
     for (auto iter_t = tail_map.begin(); iter_t != tail_map.end(); ++iter_t) {
         auto&& item_word = m_wmap[cur_head][iter_t->first];
-        auto& item_dist = m_dmap[cur_head][iter_t->first];
+        auto item_dist = m_dmap[cur_head][iter_t->first];
         m_cur_search_chain.push_back(item_word.GetLongestWord());
         if (item_word.GetLongestLen() + m_cur_search_len > item_dist.GetDistance()) {
             item_dist.SetDistance(item_word.GetLongestLen() + m_cur_search_len);
@@ -27,11 +32,11 @@ se_errcode NaiveSearch::DfsSearch(char cur_head) {
         DfsSearch(iter_t->first);
         m_cur_search_chain.pop_back();
     }
+    printf("end head:%c\n", cur_head);
     return SE_OK;
 }
 
 se_errcode NaiveSearch::Search() {
-	/*
 	set<char> word_head_set;
     set<char> word_tail_set;
     for (auto iter_h = m_wmap.begin(); iter_h != m_wmap.end(); ++iter_h) {
@@ -48,17 +53,18 @@ se_errcode NaiveSearch::Search() {
     for (auto iter = head_vector.begin(); iter != head_vector.end(); ++iter) {
         DfsSearch(*iter);
     }
-	*/
  
     return SE_OK;
 }
 
 se_errcode NaiveSearch::Search(const char& head) {
+    printf("DfsSearch\n");
     DfsSearch(head);
     return SE_OK;
 }
 
 se_errcode NaiveSearch::LookUp(vector<string>& output_buffer, const char& head, const char& tail) const {
+    PrintMap<DistanceElement>(m_dmap);
     se_errcode ret = SE_OK;
     char longest_head = NO_ASSIGN_HEAD;
     char longest_tail = NO_ASSIGN_TAIL;
@@ -216,9 +222,14 @@ se_errcode CheckCircle(const unordered_map<char, unordered_map<char, WordMapElem
                 iter->second=-1;
                 for(int j=0;j<26;j++){
                     char key=j+'a';
-                    auto iter_temp=origin_word_map.find(key)->second;
-                    if(iter_temp.find(target)!=iter_temp.end()){
-                        indegree.find(key)->second-=1;
+                    auto temp=origin_word_map.find(key);
+                    if (temp == origin_word_map.end()) {
+                        continue;
+                    } else {
+                        auto iter_temp = temp->second;
+                        if (iter_temp.find(target) != iter_temp.end()) {
+                             indegree.find(key)->second -= 1;
+                        }
                     }
                 }
             }
@@ -239,6 +250,7 @@ se_errcode ChainSearch(const unordered_map<char, unordered_map<char, WordMapElem
     int ret = SE_OK;
     SearchInterface* handle_search = NULL;
     int search_type = 0;
+    printf("ChainSearch\n");
     switch (search_type) {
         case 0: {
             handle_search = new NaiveSearch(origin_word_map, longest_type);
@@ -253,6 +265,7 @@ se_errcode ChainSearch(const unordered_map<char, unordered_map<char, WordMapElem
         default:
             fprintf(stderr, "not support search algorithm\n");
     }
+    printf("1ChainSearch\n");
     ret = handle_search->LookUp(output_buffer, head, tail);
     delete(handle_search);
     return ret;
@@ -275,6 +288,7 @@ se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<stri
     if (!enable_circle && has_circle) {
         return SE_HAS_CIRCLE;
     }
+
     // calculate longest chain
     switch (longest_type) {
         case word_longest:
@@ -362,6 +376,7 @@ string WordMapElement::ToString() const {
 string DistanceElement::ToString() const {
     string ret = "";
     for (auto iter = m_word_buffer.begin(); iter != m_word_buffer.end(); ++iter) {
+        printf("2\n");
         ret += *iter;
     }
     return ret;
@@ -375,11 +390,14 @@ void DistanceElement::SetWordChain(const vector<string>& others) {
 
 template<class T> void PrintMap(const unordered_map<char, unordered_map<char, T> >& input_map) {
     for (auto iter1 = input_map.begin(); iter1 != input_map.end(); ++iter1) {
-        fprintf(stdout, "-------------------------------------\n");
+        //fprintf(stdout, "-------------------------------------\n");
         unordered_map<char, T> item = iter1->second;
         for (auto iter2 = item.begin(); iter2 != item.end(); ++iter2) {
-            fprintf(stdout, "%c===>%c(%s)\n", iter1->first, iter2->first, iter2->second.ToString().c_str());
+            string str = iter2->second.ToString().c_str();
+            if (str != "") {
+                fprintf(stdout, "%c===>%c(%s)\n", iter1->first, iter2->first, str.c_str());
+            }
         }
-        fprintf(stdout, "-------------------------------------\n");
+        //fprintf(stdout, "-------------------------------------\n");
     }
 }
