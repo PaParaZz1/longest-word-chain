@@ -30,7 +30,7 @@ void MainWindow::on_pushButton_import_clicked()
     QTextStream in(&file);
     ui->inputArea->clear();
     ui->inputArea->setText(in.readAll());
-    cout<<"onclick_import"<<endl;
+    //cout<<"onclick_import"<<endl;
 }
 
 void MainWindow::on_pushButton_help_clicked()
@@ -42,7 +42,7 @@ void MainWindow::on_pushButton_help_clicked()
     QString helpMsg="test help";
     dialog->ui->textBrowser->setPlainText(helpMsg);
     dialog->show();
-    cout<<"onclick_help"<<endl;
+    //cout<<"onclick_help"<<endl;
 }
 
 void MainWindow::on_pushButton_run_clicked()
@@ -50,8 +50,16 @@ void MainWindow::on_pushButton_run_clicked()
     int para=ui->radioButton_w->isChecked()?1:2;
     bool ring=ui->checkBox_loop->isChecked();
     string content = ui->inputArea->toPlainText().toStdString();
-    //call corresponding function
-    cout<<"onclick_run"<<endl;
+    if(content.size()==0){
+        QString errMsg="empty input!";
+        ui->outputArea->setPlainText(errMsg);
+    }
+    else{
+        //call corresponding function
+        QString output="result";
+        ui->outputArea->setPlainText(output);
+    }
+    //cout<<"onclick_run"<<endl;
 }
 
 void MainWindow::on_pushButton_output_clicked()
@@ -65,5 +73,5 @@ void MainWindow::on_pushButton_output_clicked()
         out.flush();
         file.close();
     }
-    cout<<"onclick_output"<<endl;
+    //cout<<"onclick_output"<<endl;
 }
