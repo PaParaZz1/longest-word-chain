@@ -102,11 +102,11 @@ int main(int argc, char** argv) {
         fprintf(stdout, "enable_circle:%s\n", enable_circle ? "true" : "false");        
     }
     // get file content and push it into input buffer
-
     string input_text;
     string output_text;
 	std::ifstream in(input_file);
 	std::stringstream buffer;
+	std::ofstream out(output_file);
 	if (!in.is_open()) {
 		fprintf(stderr, "error opening input file\n");
 		return SE_ERROR_OPENING_INPUT_FILE;
@@ -122,8 +122,7 @@ int main(int argc, char** argv) {
         goto ERROR_MAIN;
     }
     // output to target file
-	std::ofstream out(output_file);
-	if (!out.is_open) {
+	if (!out.is_open()) {
 		fprintf(stderr, "error opening output file\n");
 		return SE_ERROR_OPENING_OUTPUT_FILE;
 	}

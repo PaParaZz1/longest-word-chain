@@ -5,6 +5,9 @@
 #include "dialog.h"
 #include "ui_dialog.h"
 #include <iostream>
+#include "se_word_chain_core.hpp"
+#include "se_word_chain.hpp"
+#include "se_word_chain_core.cpp"
 using namespace std;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -38,7 +41,6 @@ void MainWindow::on_pushButton_help_clicked()
     dialog = new Dialog(this);
     dialog->setModal(false);
     //to-do:helpMsg shows the usage of the gui
-    //read from file?
     QString helpMsg="test help";
     dialog->ui->textBrowser->setPlainText(helpMsg);
     dialog->show();
@@ -50,14 +52,47 @@ void MainWindow::on_pushButton_run_clicked()
     int para=ui->radioButton_w->isChecked()?1:2;
     bool ring=ui->checkBox_loop->isChecked();
     string content = ui->inputArea->toPlainText().toStdString();
+	char head, tail;
+	if (ui->comboBox_h->currentIndex() == 0) {
+		head = '\0';
+	}
+	else {
+		head = 'a' + ui->comboBox_h->currentIndex() - 1;
+	}
+	if (ui->comboBox_t->currentIndex() == 0) {
+		tail = '\0';
+	}
+	else {
+		tail = 'a' + ui->comboBox_t->currentIndex() - 1;
+	}
     if(content.size()==0){
         QString errMsg="empty input!";
         ui->outputArea->setPlainText(errMsg);
     }
     else{
         //call corresponding function
-        QString output="result";
-        ui->outputArea->setPlainText(output);
+		string output;
+		LongestWordChainType type;
+		se_errcode code;
+		QString s = "fin";
+		if (para == 1) {
+			type = word_longest;
+			code=Calculate(content, output,type,head,tail,ring);
+		}
+		else {
+			type = letter_longest;
+			code=Calculate(content, output, type, head, tail, ring);
+		}
+		if (code == SE_OK) {
+			QString result1 = QString::fromStdString(output);
+			QString result = QString::number(code);
+			ui->outputArea->setPlainText(result);
+		}
+		else {
+			QString result = QString::number(code);
+			ui->outputArea->setPlainText(result);
+		}
+		
     }
     //cout<<"onclick_run"<<endl;
 }

@@ -31,7 +31,7 @@ se_errcode NaiveSearch::DfsSearch(char cur_head) {
 }
 
 se_errcode NaiveSearch::Search() {
-	/* 
+	/*
 	set<char> word_head_set;
     set<char> word_tail_set;
     for (auto iter_h = m_wmap.begin(); iter_h != m_wmap.end(); ++iter_h) {
@@ -48,8 +48,8 @@ se_errcode NaiveSearch::Search() {
     for (auto iter = head_vector.begin(); iter != head_vector.end(); ++iter) {
         DfsSearch(*iter);
     }
-   
 	*/
+ 
     return SE_OK;
 }
 
