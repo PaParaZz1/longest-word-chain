@@ -45,7 +45,7 @@ se_errcode NaiveSearch::Search() {
     for (auto iter_h = m_wmap.begin(); iter_h != m_wmap.end(); ++iter_h) {
         char head = iter_h->first;
         word_head_set.insert(head);
-        for (auto iter_t = iter_h->second.begin(); iter_t != iter_h->second.end(); ++iter_h) {
+        for (auto iter_t = iter_h->second.begin(); iter_t != iter_h->second.end(); ++iter_t) {
             char tail = iter_t->first;
             word_tail_set.insert(tail);
         }
@@ -68,7 +68,9 @@ se_errcode NaiveSearch::Search(const char& head) {
 }
 
 se_errcode NaiveSearch::LookUp(vector<string>& output_buffer, const char& head, const char& tail) const {
-    PrintMap<DistanceElement>(m_dmap);
+    if (DEBUG) {
+        PrintMap<DistanceElement>(m_dmap);
+    }
     se_errcode ret = SE_OK;
     char longest_head = NO_ASSIGN_HEAD;
     char longest_tail = NO_ASSIGN_TAIL;
@@ -92,10 +94,11 @@ se_errcode NaiveSearch::LookUp(vector<string>& output_buffer, const char& head, 
                     longest_tail = longest_tail_temp;
                 }
             } else {
-                auto tail_find_iter = tail_map.find(tail);
-                if (tail_find_iter != tail_map.end()) {
-                    if (tail_find_iter->second.GetDistance() > temp_head_longest) {
-                        temp_head_longest = tail_find_iter->second.GetDistance();
+                auto element = tail_map.find(tail)->second;
+                auto dist = element.GetDistance();
+                if (dist != 0) {
+                    if (dist > temp_head_longest) {
+                        temp_head_longest = dist;
                         longest_head = iter_h->first;
                         longest_tail = tail;
                     }
@@ -106,25 +109,22 @@ se_errcode NaiveSearch::LookUp(vector<string>& output_buffer, const char& head, 
         if (tail == NO_ASSIGN_TAIL) {
             longest_head = head;
             auto tail_map_iter = m_dmap.find(head);
-            if (tail_map_iter != m_dmap.end()) {
-                auto tail_map = tail_map_iter->second;
-                for (auto iter_t = tail_map.begin(); iter_t != tail_map.end(); ++iter_t) {
-                    if (iter_t->second.GetDistance() > temp_head_longest) {
-                        temp_head_longest = iter_t->second.GetDistance();
-                        longest_tail = iter_t->first;
-                    }
+            auto tail_map = tail_map_iter->second;
+            for (auto iter_t = tail_map.begin(); iter_t != tail_map.end(); ++iter_t) {
+                if (iter_t->second.GetDistance() > temp_head_longest) {
+                    temp_head_longest = iter_t->second.GetDistance();
+                    longest_tail = iter_t->first;
                 }
             }
         } else {
+            printf("find1\n");
             auto tail_find_iter = m_dmap.find(head);
-            if (tail_find_iter != m_dmap.end()) {
-                auto tail_map = tail_find_iter->second;
-                auto ele_find_iter = tail_map.find(tail);
-                if (ele_find_iter != tail_map.end()) {
-                    longest_head = head;
-                    longest_tail = tail;
-                    temp_head_longest = 1;  // flag
-                }
+            auto element = tail_find_iter->second.find(tail)->second;
+            auto dist = element.GetDistance();
+            if (dist != 0) {
+                longest_head = head;
+                longest_tail = tail;
+                temp_head_longest = dist;
             }
         }
     }
@@ -291,7 +291,9 @@ se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<stri
         case SE_OK: break;
         default: return ret;
     }
-    PrintMap<WordMapElement>(origin_word_map);
+    if (DEBUG) {
+        PrintMap<WordMapElement>(origin_word_map);
+    }
     // check circle
     bool has_circle;
     CheckCircle(origin_word_map, has_circle);
@@ -339,9 +341,6 @@ se_errcode Calculate(const string& input_text, string& output_text, LongestWordC
     vector<string> output_buffer;
     if ((ret = ExtractWord(input_text, input_buffer)) != SE_OK) {
         goto ERROR_CAL;
-    }
-    for (auto iter = input_buffer.begin(); iter != input_buffer.end(); ++iter) {
-        fprintf(stdout, "word:%s\n", (*iter).c_str());
     }
 
     if ((ret = CalculateLongestChain(input_buffer, output_buffer, longest_type, head, tail, enable_circle)) != SE_OK) {

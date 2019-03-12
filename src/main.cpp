@@ -14,7 +14,6 @@ int main(int argc, char** argv) {
     // parse command argument
     // WordList.exe -w -c -h h -t t -r
     const char usage[] = "Usage: WordList.exe -w/c <input_file> [-h <head>] [-t <tail>] [-r]";
-    const bool DEBUG = true;
     bool longest_type_flag = false;
     LongestWordChainType longest_type;
     char head = NO_ASSIGN_HEAD;
@@ -87,8 +86,8 @@ int main(int argc, char** argv) {
         fprintf(stderr, "%s\n", usage);
         return SE_INVALID_COMMAND_ARGUMENT;
     }
-    fprintf(stdout, "cmd argument parse OK!\n");
     if (DEBUG) {
+        fprintf(stdout, "cmd argument parse OK!\n");
         switch (longest_type) {
             case word_longest: fprintf(stdout, "longest type: word_longest\n"); break;
             case letter_longest: fprintf(stdout, "longest type: letter_longest\n"); break;
@@ -116,7 +115,6 @@ int main(int argc, char** argv) {
 	}
 
     // calculate
-    fprintf(stdout, "input_text:%s\n", input_text.c_str());
     int ret = SE_OK;
     if ((ret = Calculate(input_text, output_text, longest_type, head, tail, enable_circle)) != SE_OK) {
         goto ERROR_MAIN;
