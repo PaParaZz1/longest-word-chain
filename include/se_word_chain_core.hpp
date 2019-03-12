@@ -116,6 +116,7 @@ class DistanceElement{
         void CopyWordBuffer(vector<string>& output_buffer) const {
             output_buffer.assign(m_word_buffer.begin(), m_word_buffer.end());
         }
+        void SetWordChain(const vector<string>& others);
     private:
         vector<string> m_word_buffer;
         LongestWordChainType m_longest_type;
@@ -159,12 +160,14 @@ class NaiveSearch : public SearchInterface{
         }
         ~NaiveSearch() {}
         se_errcode Search();
+        se_errcode Search(const char& head);
         se_errcode LookUp(vector<string>& output_buffer, const char& head, const char& tail) const;
     private:
         HWmap m_wmap;
         HDmap m_dmap;
         LongestWordChainType m_type;
         int m_cur_search_len;
+        vector<string> m_cur_search_chain;
         se_errcode DfsSearch(char cur_head);
 };
 

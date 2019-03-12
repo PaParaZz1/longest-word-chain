@@ -9,5 +9,7 @@
 #define SE_HAS_CIRCLE -2
 #define SE_INVALID_LONGEST_TYPE -3
 #define SE_NO_AVAILABLE_WORD_CHAIN -4
+#define SE_INVALID_COMMAND_ARGUMENT -5
+#define SE_NO_FOUND_FILE -6
 typedef int se_errcode;
 #endif // SE_WORD_CHAIN_UTILS_HPP_
