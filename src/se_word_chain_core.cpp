@@ -233,6 +233,7 @@ se_errcode CheckCircle(const unordered_map<char, unordered_map<char, WordMapElem
 }
 
 se_errcode ChainSearch(const unordered_map<char, unordered_map<char, WordMapElement> >& origin_word_map, vector<string>& output_buffer, const LongestWordChainType& longest_type, const char& head, const char& tail) {
+    int ret = SE_OK;
     SearchInterface* handle_search = NULL;
     int search_type = 0;
     switch (search_type) {
@@ -246,10 +247,12 @@ se_errcode ChainSearch(const unordered_map<char, unordered_map<char, WordMapElem
             }
             break;
         }   
+        default:
+            fprintf(stderr, "not support search algorithm\n");
     }
-    handle_search->LookUp(output_buffer, head, tail);
+    ret = handle_search->LookUp(output_buffer, head, tail);
     delete(handle_search);
-    return SE_OK;
+    return ret;
 }
 
 se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<string>& output_buffer, const LongestWordChainType& longest_type, const char& head, const char& tail, bool enable_circle) {
@@ -271,7 +274,11 @@ se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<stri
     // calculate longest chain
     switch (longest_type) {
         case word_longest:
-        case letter_longest:
+            // fall through
+        case letter_longest: {
+            ret = ChainSearch(origin_word_map, output_buffer, longest_type, head, tail);
+            break;
+        }
         default: {
             fprintf(stderr, "invalid longest_type argument: %d\n", longest_type);
             return SE_INVALID_LONGEST_TYPE;
