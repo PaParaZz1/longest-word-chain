@@ -110,13 +110,13 @@ int main(int argc, char** argv) {
 	if (!in.is_open()) {
 		fprintf(stderr, "error opening input file\n");
 		return SE_ERROR_OPENING_INPUT_FILE;
-	}
-	else {
+	} else {
 		buffer << in.rdbuf();
 		input_text = buffer.str();
 	}
 
     // calculate
+    fprintf(stdout, "input_text:%s\n", input_text.c_str());
     int ret = SE_OK;
     if ((ret = Calculate(input_text, output_text, longest_type, head, tail, enable_circle)) != SE_OK) {
         goto ERROR_MAIN;
@@ -125,8 +125,7 @@ int main(int argc, char** argv) {
 	if (!out.is_open()) {
 		fprintf(stderr, "error opening output file\n");
 		return SE_ERROR_OPENING_OUTPUT_FILE;
-	}
-	else {
+	} else {
 		out << output_text;
 		out.close();
 	}

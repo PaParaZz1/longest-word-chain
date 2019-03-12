@@ -58,6 +58,8 @@ class WordMapElement {
             m_head = word.GetHead();
             m_tail = word.GetTail();
             m_key = word.GetKey();
+            WordElement item(std::move(word.GetWord()));
+            m_word_set.push_back(item);
             m_current_longest_len = 0;
         }
         se_errcode AppendWord(const string& word);
@@ -67,12 +69,13 @@ class WordMapElement {
         int GetLongestLen() const {
             return m_current_longest_len;
         }
+        string ToString() const;
     private:
         typedef struct _WordElement{
             string data;
             int size;
-            _WordElement(int _size, string _data) {
-                size = _size;
+            _WordElement(string _data) {
+                size = _data.size();
                 data = _data;
             }
         } WordElement;
@@ -100,12 +103,6 @@ class DistanceElement{
                 default: return 0;
             }
         }
-        void SetWordDistance(int distance) {
-            m_word_distance = distance;
-        }
-        void SetLetterDistance(int distance) {
-            m_letter_distance = distance;
-        }
         void SetDistance(int distance) {
             switch (m_longest_type) {
                 case word_longest: SetWordDistance(distance); break;
@@ -117,6 +114,7 @@ class DistanceElement{
             output_buffer.assign(m_word_buffer.begin(), m_word_buffer.end());
         }
         void SetWordChain(const vector<string>& others);
+        string ToString() const;
     private:
         vector<string> m_word_buffer;
         LongestWordChainType m_longest_type;
@@ -127,6 +125,12 @@ class DistanceElement{
         }
         int GetWordDistance() const {
             return m_word_distance;
+        }
+        void SetWordDistance(int distance) {
+            m_word_distance = distance;
+        }
+        void SetLetterDistance(int distance) {
+            m_letter_distance = distance;
         }
 };
 
@@ -172,6 +176,8 @@ class NaiveSearch : public SearchInterface{
 };
 
 string tolower(string str);
+
+template<class T> void PrintMap(const unordered_map<char, unordered_map<char, T> >& input_map);
 
 se_errcode ExtractWord(const string& input_text, vector<string>& input_buffer);
 

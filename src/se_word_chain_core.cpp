@@ -268,6 +268,7 @@ se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<stri
         case SE_OK: break;
         default: return ret;
     }
+    PrintMap<WordMapElement>(origin_word_map);
     // check circle
     bool has_circle;
     CheckCircle(origin_word_map, has_circle);
@@ -312,15 +313,19 @@ se_errcode Calculate(const string& input_text, string& output_text, LongestWordC
     int ret = SE_OK;
     vector<string> input_buffer;
     vector<string> output_buffer;
-    if (ret == ExtractWord(input_text, input_buffer) != SE_OK) {
+    if ((ret = ExtractWord(input_text, input_buffer)) != SE_OK) {
         goto ERROR_CAL;
     }
-
-    if (ret == CalculateLongestChain(input_buffer, output_buffer, longest_type, head, tail, enable_circle) != SE_OK) {
-        goto ERROR_CAL;
+    for (auto iter = input_buffer.begin(); iter != input_buffer.end(); ++iter) {
+        fprintf(stdout, "word:%s\n", (*iter).c_str());
     }
 
-    if (ret == OutputTransform(output_buffer, output_text) != SE_OK) {
+    if ((ret = CalculateLongestChain(input_buffer, output_buffer, longest_type, head, tail, enable_circle)) != SE_OK) {
+        goto ERROR_CAL;
+    }
+    fprintf(stdout, "Calculate\n");
+
+    if ((ret = OutputTransform(output_buffer, output_text)) != SE_OK) {
         goto ERROR_CAL;
     }
     return SE_OK;
@@ -340,14 +345,41 @@ se_errcode WordMapElement::AppendWord(const string& word) {
             break;
         }
     }
-    m_word_set.insert(iter, WordElement(size, word));
+    m_word_set.insert(iter, WordElement(word));
     m_current_longest_len = m_word_set[0].size;
 
     return SE_OK;
+}
+
+string WordMapElement::ToString() const {
+    string ret = "";
+    for (auto iter = m_word_set.begin(); iter != m_word_set.end(); ++iter) {
+        ret += (*iter).data;
+    }
+    return ret;
+}
+
+string DistanceElement::ToString() const {
+    string ret = "";
+    for (auto iter = m_word_buffer.begin(); iter != m_word_buffer.end(); ++iter) {
+        ret += *iter;
+    }
+    return ret;
 }
 
 void DistanceElement::SetWordChain(const vector<string>& others) {
     int size = others.size();
     m_word_buffer.assign(others.begin(), others.end());
     m_word_buffer.resize(size);
+}
+
+template<class T> void PrintMap(const unordered_map<char, unordered_map<char, T> >& input_map) {
+    for (auto iter1 = input_map.begin(); iter1 != input_map.end(); ++iter1) {
+        fprintf(stdout, "-------------------------------------\n");
+        unordered_map<char, T> item = iter1->second;
+        for (auto iter2 = item.begin(); iter2 != item.end(); ++iter2) {
+            fprintf(stdout, "%c===>%c(%s)\n", iter1->first, iter2->first, iter2->second.ToString().c_str());
+        }
+        fprintf(stdout, "-------------------------------------\n");
+    }
 }
