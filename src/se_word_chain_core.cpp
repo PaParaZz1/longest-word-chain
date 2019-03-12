@@ -27,12 +27,34 @@ se_errcode NaiveSearch::DfsSearch(char cur_head) {
         m_cur_search_chain.push_back(item_word.GetLongestWord());
         printf("cur len:%d\n", item_word.GetLongestLen());
         printf("cur dist:%d\n", item_dist.GetDistance());
-        if (item_word.GetLongestLen() + m_cur_search_len > item_dist.GetDistance()) {
+        int sum_dist;
+        switch (m_type) {
+            case word_longest: {
+                sum_dist = 1 + m_cur_search_len;
+                m_cur_search_len += 1;
+                break;
+            }
+            case letter_longest: {
+                sum_dist = item_word.GetLongestLen() + m_cur_search_len;
+                m_cur_search_len += item_word.GetLongestLen();
+                break;
+            }
+        }
+        if (sum_dist > item_dist.GetDistance()) {
             auto& begin_item_dist = m_dmap[m_begin_item][iter_t->first];
-            begin_item_dist.SetDistance(item_word.GetLongestLen() + m_cur_search_len);
+            begin_item_dist.SetDistance(sum_dist);
             begin_item_dist.SetWordChain(m_cur_search_chain);
         }
         DfsSearch(iter_t->first);
+        switch (m_type) {
+            case word_longest: {
+                m_cur_search_len -= 1;
+                break;
+            }
+            case letter_longest: {
+                m_cur_search_len -= item_word.GetLongestLen();
+            }
+        }
         m_cur_search_chain.pop_back();
     }
     printf("end head:%c\n", cur_head);
@@ -80,6 +102,7 @@ se_errcode NaiveSearch::LookUp(vector<string>& output_buffer, const char& head, 
         for (auto iter_h = m_dmap.begin(); iter_h != m_dmap.end(); ++iter_h) {
             auto tail_map = iter_h->second;
             if (tail == NO_ASSIGN_TAIL) {
+                printf("head look:%c\n", iter_h->first);
                 int temp_tail_longest = 0;
                 char longest_tail_temp = NO_ASSIGN_TAIL;
                 for (auto iter_t = tail_map.begin(); iter_t != tail_map.end(); ++iter_t) {
@@ -88,6 +111,8 @@ se_errcode NaiveSearch::LookUp(vector<string>& output_buffer, const char& head, 
                         longest_tail_temp = iter_t->first;
                     }
                 }
+                printf("temp_tail_longest:%d\n", temp_tail_longest);
+                printf("temp_head_longest:%d\n", temp_head_longest);
                 if (temp_tail_longest > temp_head_longest) {
                     temp_head_longest = temp_tail_longest;
                     longest_head = iter_h->first;
