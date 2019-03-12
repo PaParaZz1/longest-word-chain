@@ -3,6 +3,9 @@
  */
 #include <cstdio>
 #include <cstring>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 #include "se_word_chain.hpp"
 #include "se_word_chain_core.hpp"
 #define MAX_FILE_LEN 512
@@ -19,7 +22,6 @@ int main(int argc, char** argv) {
     bool enable_circle = false;
     char input_file[MAX_FILE_LEN]; 
     const char output_file[MAX_FILE_LEN] = "solution.txt";
-
     for (int i=1; i<argc; ++i) {
         if (argv[i][0] == '-') {
             switch (argv[i][1]) {
@@ -100,14 +102,35 @@ int main(int argc, char** argv) {
         fprintf(stdout, "enable_circle:%s\n", enable_circle ? "true" : "false");        
     }
     // get file content and push it into input buffer
+
     string input_text;
     string output_text;
+	std::ifstream in(input_file);
+	std::stringstream buffer;
+	if (!in.is_open()) {
+		fprintf(stderr, "error opening input file\n");
+		return SE_ERROR_OPENING_INPUT_FILE;
+	}
+	else {
+		buffer << in.rdbuf();
+		input_text = buffer.str();
+	}
+
     // calculate
     int ret = SE_OK;
     if ((ret = Calculate(input_text, output_text, longest_type, head, tail, enable_circle)) != SE_OK) {
         goto ERROR_MAIN;
     }
     // output to target file
+	std::ofstream out(output_file);
+	if (!out.is_open) {
+		fprintf(stderr, "error opening output file\n");
+		return SE_ERROR_OPENING_OUTPUT_FILE;
+	}
+	else {
+		out << output_text;
+		out.close();
+	}
     return ret;
 
 ERROR_MAIN:
