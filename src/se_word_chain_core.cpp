@@ -289,7 +289,7 @@ se_errcode Calculate(const string& input_text, string& output_text, LongestWordC
     int ret = SE_OK;
     vector<string> input_buffer;
     vector<string> output_buffer;
-    if (ret ==ExtractWord(input_text, input_buffer) != SE_OK) {
+    if (ret == ExtractWord(input_text, input_buffer) != SE_OK) {
         goto ERROR_CAL;
     }
 

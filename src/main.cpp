@@ -18,6 +18,7 @@ int main(int argc, char** argv) {
     char tail = NO_ASSIGN_TAIL;
     bool enable_circle = false;
     char input_file[MAX_FILE_LEN]; 
+    const char output_file[MAX_FILE_LEN] = "solution.txt";
 
     for (int i=1; i<argc; ++i) {
         if (argv[i][0] == '-') {
@@ -99,9 +100,17 @@ int main(int argc, char** argv) {
         fprintf(stdout, "enable_circle:%s\n", enable_circle ? "true" : "false");        
     }
     // get file content and push it into input buffer
-    //
+    string input_text;
+    string output_text;
     // calculate
-    //
+    int ret = SE_OK;
+    if ((ret = Calculate(input_text, output_text, longest_type, head, tail, enable_circle)) != SE_OK) {
+        goto ERROR_MAIN;
+    }
     // output to target file
-    return 0;
+    return ret;
+
+ERROR_MAIN:
+    fprintf(stderr, "error code:%d\n", ret);
+    return ret;
 }
