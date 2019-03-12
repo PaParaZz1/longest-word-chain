@@ -52,7 +52,7 @@ class WordMapElement {
      */
     public:
         WordMapElement() {
-            fprintf(stderr, "error call WordMapElement\n");
+           fprintf(stderr, "error call WordMapElement\n");
         }
         explicit WordMapElement(Word& word) {
             m_head = word.GetHead();
