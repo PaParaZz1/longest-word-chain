@@ -60,14 +60,14 @@ class WordMapElement {
             m_key = word.GetKey();
             WordElement item(std::move(word.GetWord()));
             m_word_set.push_back(item);
-            m_current_longest_len = 0;
+            m_cur_longest_index = 0;
         }
         se_errcode AppendWord(const string& word);
         string GetLongestWord() const {
-            return m_current_longest_word;
+            return m_word_set[m_cur_longest_index].data;
         }
         int GetLongestLen() const {
-            return m_current_longest_len;
+            return m_word_set[m_cur_longest_index].size;
         }
         string ToString() const;
     private:
@@ -82,8 +82,7 @@ class WordMapElement {
         char m_head;
         char m_tail;
         string m_key;
-        string m_current_longest_word;
-        int m_current_longest_len;
+        int m_cur_longest_index;
         vector<WordElement> m_word_set;
 };
 
@@ -171,6 +170,7 @@ class NaiveSearch : public SearchInterface{
         HDmap m_dmap;
         LongestWordChainType m_type;
         int m_cur_search_len;
+        char m_begin_item;
         vector<string> m_cur_search_chain;
         se_errcode DfsSearch(char cur_head);
 };

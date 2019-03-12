@@ -23,11 +23,14 @@ se_errcode NaiveSearch::DfsSearch(char cur_head) {
     TWmap tail_map = iter_h->second;
     for (auto iter_t = tail_map.begin(); iter_t != tail_map.end(); ++iter_t) {
         auto&& item_word = m_wmap[cur_head][iter_t->first];
-        auto item_dist = m_dmap[cur_head][iter_t->first];
+        auto& item_dist = m_dmap[cur_head][iter_t->first];
         m_cur_search_chain.push_back(item_word.GetLongestWord());
+        printf("cur len:%d\n", item_word.GetLongestLen());
+        printf("cur dist:%d\n", item_dist.GetDistance());
         if (item_word.GetLongestLen() + m_cur_search_len > item_dist.GetDistance()) {
-            item_dist.SetDistance(item_word.GetLongestLen() + m_cur_search_len);
-            item_dist.SetWordChain(m_cur_search_chain);
+            auto& begin_item_dist = m_dmap[m_begin_item][iter_t->first];
+            begin_item_dist.SetDistance(item_word.GetLongestLen() + m_cur_search_len);
+            begin_item_dist.SetWordChain(m_cur_search_chain);
         }
         DfsSearch(iter_t->first);
         m_cur_search_chain.pop_back();
@@ -51,6 +54,7 @@ se_errcode NaiveSearch::Search() {
     auto iter_d = std::set_difference(word_head_set.begin(), word_head_set.end(), word_tail_set.begin(), word_tail_set.end(), head_vector.begin());
     head_vector.resize(iter_d - head_vector.begin());
     for (auto iter = head_vector.begin(); iter != head_vector.end(); ++iter) {
+        m_begin_item = *iter;
         DfsSearch(*iter);
     }
  
@@ -58,7 +62,7 @@ se_errcode NaiveSearch::Search() {
 }
 
 se_errcode NaiveSearch::Search(const char& head) {
-    printf("DfsSearch\n");
+    m_begin_item = head;
     DfsSearch(head);
     return SE_OK;
 }
@@ -112,8 +116,16 @@ se_errcode NaiveSearch::LookUp(vector<string>& output_buffer, const char& head, 
                 }
             }
         } else {
-            longest_head = head;
-            longest_tail = tail;
+            auto tail_find_iter = m_dmap.find(head);
+            if (tail_find_iter != m_dmap.end()) {
+                auto tail_map = tail_find_iter->second;
+                auto ele_find_iter = tail_map.find(tail);
+                if (ele_find_iter != tail_map.end()) {
+                    longest_head = head;
+                    longest_tail = tail;
+                    temp_head_longest = 1;  // flag
+                }
+            }
         }
     }
 
@@ -250,7 +262,6 @@ se_errcode ChainSearch(const unordered_map<char, unordered_map<char, WordMapElem
     int ret = SE_OK;
     SearchInterface* handle_search = NULL;
     int search_type = 0;
-    printf("ChainSearch\n");
     switch (search_type) {
         case 0: {
             handle_search = new NaiveSearch(origin_word_map, longest_type);
@@ -265,7 +276,6 @@ se_errcode ChainSearch(const unordered_map<char, unordered_map<char, WordMapElem
         default:
             fprintf(stderr, "not support search algorithm\n");
     }
-    printf("1ChainSearch\n");
     ret = handle_search->LookUp(output_buffer, head, tail);
     delete(handle_search);
     return ret;
@@ -337,7 +347,6 @@ se_errcode Calculate(const string& input_text, string& output_text, LongestWordC
     if ((ret = CalculateLongestChain(input_buffer, output_buffer, longest_type, head, tail, enable_circle)) != SE_OK) {
         goto ERROR_CAL;
     }
-    fprintf(stdout, "Calculate\n");
 
     if ((ret = OutputTransform(output_buffer, output_text)) != SE_OK) {
         goto ERROR_CAL;
@@ -360,7 +369,6 @@ se_errcode WordMapElement::AppendWord(const string& word) {
         }
     }
     m_word_set.insert(iter, WordElement(word));
-    m_current_longest_len = m_word_set[0].size;
 
     return SE_OK;
 }
@@ -376,8 +384,11 @@ string WordMapElement::ToString() const {
 string DistanceElement::ToString() const {
     string ret = "";
     for (auto iter = m_word_buffer.begin(); iter != m_word_buffer.end(); ++iter) {
-        printf("2\n");
-        ret += *iter;
+        if (ret == "") {
+            ret += *iter;
+        } else {
+            ret += ("-" + *iter);
+        }
     }
     return ret;
 }
