@@ -21,9 +21,10 @@ class Word {
         Word(const string& word) : m_word(word) {
             m_head = m_word[0];
             m_tail = m_word[m_word.size() - 1];
-            char tmp[2];
+            char tmp[3];
             tmp[0] = m_head;
             tmp[1] = m_tail;
+			tmp[2] = '\0';
             m_key = string(tmp);
         } 
         char GetHead() const {
