@@ -102,7 +102,7 @@ se_errcode NaiveSearch::LookUp(vector<string>& output_buffer, const char& head, 
         for (auto iter_h = m_dmap.begin(); iter_h != m_dmap.end(); ++iter_h) {
             auto tail_map = iter_h->second;
             if (tail == NO_ASSIGN_TAIL) {
-                printf("head look:%c\n", iter_h->first);
+                //printf("head look:%c\n", iter_h->first);
                 int temp_tail_longest = 0;
                 char longest_tail_temp = NO_ASSIGN_TAIL;
                 for (auto iter_t = tail_map.begin(); iter_t != tail_map.end(); ++iter_t) {
@@ -111,8 +111,8 @@ se_errcode NaiveSearch::LookUp(vector<string>& output_buffer, const char& head, 
                         longest_tail_temp = iter_t->first;
                     }
                 }
-                printf("temp_tail_longest:%d\n", temp_tail_longest);
-                printf("temp_head_longest:%d\n", temp_head_longest);
+                //printf("temp_tail_longest:%d\n", temp_tail_longest);
+                //printf("temp_head_longest:%d\n", temp_head_longest);
                 if (temp_tail_longest > temp_head_longest) {
                     temp_head_longest = temp_tail_longest;
                     longest_head = iter_h->first;
@@ -135,7 +135,7 @@ se_errcode NaiveSearch::LookUp(vector<string>& output_buffer, const char& head, 
             longest_head = head;
             auto tail_map_iter = m_dmap.find(head);
             auto tail_map = tail_map_iter->second;
-            for (auto iter_t = tail_map.begin(); iter_t != tail_map.end(); ++iter_t) {
+           for (auto iter_t = tail_map.begin(); iter_t != tail_map.end(); ++iter_t) {
                 if (iter_t->second.GetDistance() > temp_head_longest) {
                     temp_head_longest = iter_t->second.GetDistance();
                     longest_tail = iter_t->first;
@@ -209,7 +209,7 @@ se_errcode GenerateWordMap(const vector<string>& input_buffer, unordered_map<cha
             tail_map.insert(Cmap::value_type(word_item.GetTail(), WordMapElement(word_item)));
             origin_word_map.insert(CCmap::value_type(word_item.GetHead(), tail_map));
         } else {
-            Cmap tail_map = head_find_flag->second;
+            auto& tail_map = head_find_flag->second;
             auto tail_find_flag =  tail_map.find(word_item.GetTail());
             if (tail_find_flag == tail_map.end()) {
                 tail_map.insert(Cmap::value_type(word_item.GetTail(), WordMapElement(word_item)));
