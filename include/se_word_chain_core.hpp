@@ -54,7 +54,7 @@ class WordMapElement {
         WordMapElement() {
            fprintf(stderr, "error call WordMapElement\n");
         }
-        explicit WordMapElement(Word& word) {
+        explicit WordMapElement(const Word& word) {
             m_head = word.GetHead();
             m_tail = word.GetTail();
             m_key = word.GetKey();
@@ -146,6 +146,7 @@ class DistanceElement{
             return m_word_distance;
         }
         void SetWordDistance(int distance) {
+            printf("call word\n");
             m_word_distance = distance;
         }
         void SetLetterDistance(int distance) {
