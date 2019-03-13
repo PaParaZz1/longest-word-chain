@@ -287,7 +287,10 @@ se_errcode CheckCircle(const unordered_map<char, unordered_map<char, WordMapElem
 		if (iter != origin_word_map.end()) {
 			auto iter_temp = iter->second.find(target);
 			if (iter_temp != iter->second.end()) {
-				indegree.find(target)->second -= 1;
+				auto set = iter_temp->second;
+				if (set.GetSetSize() == 1) {
+					indegree.find(target)->second -= 1;
+				}
 			}
 		}
 	}

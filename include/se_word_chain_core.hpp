@@ -84,6 +84,9 @@ class WordMapElement {
                 m_cur_longest_index--;
             */
         }
+		int GetSetSize() {
+			return m_word_set.size();
+		}
         string ToString() const;
     private:
         typedef struct _WordElement{
