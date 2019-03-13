@@ -1,3 +1,4 @@
+#pragma execution_character_set("utf-8")  
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <qfiledialog.h>
@@ -41,7 +42,7 @@ void MainWindow::on_pushButton_help_clicked()
     dialog = new Dialog(this);
     dialog->setModal(false);
     //to-do:helpMsg shows the usage of the gui
-    QString helpMsg="test help";
+    QString helpMsg="【导入文件】按钮将.txt的文本作为输入\n【单选框】选择-w选项或-c选项\n【多选框】可以选择以某个字母开头或结尾，null为不做限制\n若需要加入-r选项，请勾选【单词环】\n输入文本后点击【运行程序】按钮开始单词链运算\n【导出结果】按钮可以将输出导出到文件\n ";
     dialog->ui->textBrowser->setPlainText(helpMsg);
     dialog->show();
     //cout<<"onclick_help"<<endl;
@@ -84,15 +85,23 @@ void MainWindow::on_pushButton_run_clicked()
 			code=Calculate(content, output, type, head, tail, ring);
 		}
 		if (code == SE_OK) {
-			QString result1 = QString::fromStdString(output);
-			QString result = QString::number(code);
+			QString result = QString::fromStdString(output);
 			ui->outputArea->setPlainText(result);
 		}
 		else {
-			QString result = QString::number(code);
+			QString result;
+			switch (code) {
+				case -1:result = "REPEAT_WORD";break;
+				case -2:result = "HAS_CIRCLE"; break;
+				case -3:result = "INVALID_LONGEST_TYPE"; break;
+				case -4:result = "NO_AVAILABLE_WORD_CHAIN"; break;
+				case -5:result = "INVALID_COMMAND_ARGUMEN"; break;
+				case -6:result = "ERROR_OPENING_INPUT_FILE"; break;
+				case -7:result = "ERROR_OPENING_OUTPUT_FILE"; break;
+				default:result = ""; break;
+			}
 			ui->outputArea->setPlainText(result);
 		}
-		
     }
     //cout<<"onclick_run"<<endl;
 }

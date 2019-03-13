@@ -108,9 +108,9 @@ namespace UnitTest1
 			Assert::AreEqual(testElement2.GetLongestWord(), string("phycho"));
 		}
 
-		TEST_METHOD(Test_AppendWord)
+		TEST_METHOD(Test_Class_WordMapElement_Method)
 		{
-			//TEST  AppendWord
+			//TEST  Class_WordMapElement_Method: Append/GetLongestLen/GetLongestWord/GetSetSize/ToString
 			Word test1 = "a";
 			WordMapElement testElement1 = WordMapElement(test1);
 			Assert::AreEqual(testElement1.GetLongestLen(), 1);
@@ -121,6 +121,8 @@ namespace UnitTest1
 			testElement1.AppendWord("ab");
 			Assert::AreEqual(testElement1.GetLongestLen(), 3);
 			Assert::AreEqual(testElement1.GetLongestWord(), string("abc"));
+			Assert::AreEqual(testElement1.GetSetSize(), 3);
+			Assert::AreEqual(testElement1.ToString(), string("abcaba"));
 
 			Word test2 = "phycho";
 			WordMapElement testElement2 = WordMapElement(test2);
@@ -129,9 +131,12 @@ namespace UnitTest1
 			testElement2.AppendWord("phy");
 			Assert::AreEqual(testElement2.GetLongestLen(), 6);
 			Assert::AreEqual(testElement2.GetLongestWord(), string("phycho"));
+			Assert::AreEqual(testElement2.GetSetSize(), 2);
+			Assert::AreEqual(testElement2.ToString(), string("phychophy"));
 			testElement2.AppendWord("phyphychocho");
 			Assert::AreEqual(testElement2.GetLongestLen(), 12);
 			Assert::AreEqual(testElement2.GetLongestWord(), string("phyphychocho"));
+			Assert::AreEqual(testElement2.ToString(), string("phyphychochophychophy"));
 		}
 
 		TEST_METHOD(Test_CheckCircle)
@@ -157,6 +162,82 @@ namespace UnitTest1
 			bool hascircle3;
 			CheckCircle(wordmap3, hascircle3);
 			Assert::AreEqual(hascircle3, false);
+
+			CCmap wordmap4;
+			vector<string> test4 = { "this","map","should","not","have","circle","algebra","TNT","alalgegebrabra" };
+			GenerateWordMap(test4, wordmap4);
+			bool hascircle4;
+			CheckCircle(wordmap4, hascircle4);
+			Assert::AreEqual(hascircle4, true);
+		}
+
+		TEST_METHOD(Test_Class_DistanceElement)
+		{
+			//TEST  Class_DistanceElement
+			LongestWordChainType type1 = letter_longest;
+			DistanceElement testElement1 = DistanceElement(type1);
+			Assert::AreEqual(testElement1.GetDistance(), 0);
+
+			LongestWordChainType type2 = word_longest;
+			DistanceElement testElement2 = DistanceElement(type2);
+			Assert::AreEqual(testElement2.GetDistance(), 0);
+		}
+
+		TEST_METHOD(Test_Class_DistanceElement_Method)
+		{
+			//TEST  Class_DistanceElement_Method: SetDistance/GetDistance/SetWordChain/CopyWordBuffer/ToString
+			LongestWordChainType type1 = letter_longest;
+			DistanceElement testElement1 = DistanceElement(type1);
+			Assert::AreEqual(testElement1.GetDistance(), 0);
+			vector<string> input1 = { "a","test","of","it" };
+			vector<string> output1;
+			testElement1.SetWordChain(input1);
+			testElement1.CopyWordBuffer(output1);
+			for (int i = 0; i < input1.size(); i++) {
+				Assert::AreEqual(output1[i], input1[i]);
+			}
+			testElement1.SetDistance(6);
+			Assert::AreEqual(testElement1.GetDistance(), 6);
+			Assert::AreEqual(testElement1.ToString(), string("a-test-of-it"));
+
+			LongestWordChainType type2 = word_longest;
+			DistanceElement testElement2 = DistanceElement(type2);
+			Assert::AreEqual(testElement2.GetDistance(), 0);
+			vector<string> input2 = { "another","test","of","it" };
+			vector<string> output2;
+			testElement2.SetWordChain(input2);
+			testElement2.CopyWordBuffer(output2);
+			for (int i = 0; i < input2.size(); i++) {
+				Assert::AreEqual(output2[i], input2[i]);
+			}
+			testElement2.SetDistance(2);
+			Assert::AreEqual(testElement2.GetDistance(), 2);
+			Assert::AreEqual(testElement2.ToString(), string("another-test-of-it"));
+		}
+	
+		TEST_METHOD(Test_GenerateWordMap)
+		{
+			//Test GenerateWordMap
+
+			CCmap test_word_map;
+			vector<string> input_buffer = { "algebra","apple","zoo","elephant","under","fox","dog","moon","leaf","trick","pseudopseudohypoparathyroidism" };
+			GenerateWordMap(input_buffer, test_word_map);
+			Assert::AreEqual(int(test_word_map.size()), 10);
+			auto iter = test_word_map.find('a');
+			Assert::AreEqual(int(iter->second.size()), 2);
+			iter = test_word_map.find('z');
+			Assert::AreEqual(int(iter->second.size()), 1);
+			iter = test_word_map.find('e');
+			Assert::AreEqual(int(iter->second.size()), 1);
+		}
+		TEST_METHOD(Test_Class_NaiveSearch_Method)
+		{
+			//Test Class_NaiveSearch_Method: DfsSearch/Search/LookUp
+
+			//SearchInterface* handle_search = NULL;
+			//handle_search = new NaiveSearch(origin_word_map, longest_type);
+
+
 		}
 	};
 }
