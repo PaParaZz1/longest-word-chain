@@ -230,14 +230,62 @@ namespace UnitTest1
 			iter = test_word_map.find('e');
 			Assert::AreEqual(int(iter->second.size()), 1);
 		}
+
 		TEST_METHOD(Test_Class_NaiveSearch_Method)
 		{
 			//Test Class_NaiveSearch_Method: DfsSearch/Search/LookUp
-
-			//SearchInterface* handle_search = NULL;
-			//handle_search = new NaiveSearch(origin_word_map, longest_type);
-
-
+			CCmap test_word_map;
+			vector<string> input_buffer = { "algebra","apple","zoo","elephant","under","fox","dog","moon","leaf","trick","pseudopseudohypoparathyroidism" };
+			GenerateWordMap(input_buffer, test_word_map);
+			SearchInterface* handle_search1 = NULL;
+			LongestWordChainType type1 = word_longest;
+			handle_search1 = new NaiveSearch(test_word_map, type1);
+			handle_search1->Search();
+			vector<string> output;
+			vector<string> result1 = { "algebra","apple","elephant","trick" };
+			vector<string> result2 = { "elephant","trick" };
+			vector<string> result3 = { "pseudopseudohypoparathyroidism","moon" };
+			vector<string> result4 = { "dog" };
+			handle_search1->LookUp(output, NO_ASSIGN_HEAD, NO_ASSIGN_TAIL);
+			for (int i = 0; i < output.size(); i++) {
+				Assert::AreEqual(output[i], result1[i]);
+			}
+			handle_search1->LookUp(output, 'e', NO_ASSIGN_TAIL);
+			for (int i = 0; i < output.size(); i++) {
+				Assert::AreEqual(output[i], result2[i]);
+			}
+			handle_search1->LookUp(output, NO_ASSIGN_HEAD, 'n');
+			for (int i = 0; i < output.size(); i++) {
+				Assert::AreEqual(output[i], result3[i]);
+			}
+			handle_search1->LookUp(output, 'd', 'g');
+			for (int i = 0; i < output.size(); i++) {
+				Assert::AreEqual(output[i], result4[i]);
+			}
+			SearchInterface* handle_search2 = NULL;
+			LongestWordChainType type2 = letter_longest;
+			handle_search2 = new NaiveSearch(test_word_map, type2);
+			handle_search2->Search();
+			handle_search2->LookUp(output, NO_ASSIGN_HEAD, NO_ASSIGN_TAIL);
+			for (int i = 0; i < output.size(); i++) {
+				Assert::AreEqual(output[i], result3[i]);
+			}
+		}
+	
+		TEST_METHOD(Test_Calculate)
+		{
+			//Test Calculate: include CalculateLongestChain/ChainSearch
+			string input_text ="Algebra))Apple 123Zoo Elephant  Under  Fox_Dog-Moon Leaf`;;Trick Pseudopseudohypoparathyroidism";
+			string output_text1 = "";
+			LongestWordChainType type1 = word_longest;
+			Calculate(input_text, output_text1, type1, NO_ASSIGN_HEAD, NO_ASSIGN_TAIL, false);
+			string result1 = "algebra\napple\nelephant\ntrick\n";
+			Assert::AreEqual(result1, output_text1);
+			string output_text2 = "";
+			LongestWordChainType type2 = letter_longest;
+			Calculate(input_text, output_text2, type2, NO_ASSIGN_HEAD, NO_ASSIGN_TAIL, false);
+			string result2 = "pseudopseudohypoparathyroidism\nmoon\n";
+			Assert::AreEqual(result2, output_text2);
 		}
 	};
 }

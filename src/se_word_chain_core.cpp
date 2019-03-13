@@ -202,6 +202,11 @@ se_errcode ExtractWord(const string& input_text, vector<string>& input_buffer) {
                     i=j;
                     break;
                 }
+				if (j == len - 1) {
+					input_buffer.push_back(tolower(input_text.substr(i, j - i+1)));
+					i = j;
+					break;
+				}
             }
         }
     }
