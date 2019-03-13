@@ -14,7 +14,8 @@ using Dmap = unordered_map<char, int>;
 SearchInterface::~SearchInterface() {}
 
 se_errcode NaiveSearch::DfsSearch(char cur_head) {
-    printf("cur head:%c\n", cur_head);
+    //printf("cur head:%c\n", cur_head);
+    SE_WORD_CHAIN_LOG("cur head:%c", cur_head);
     auto iter_h = m_wmap.find(cur_head);
     if (iter_h == m_wmap.end()) {
         return SE_OK;
@@ -23,10 +24,13 @@ se_errcode NaiveSearch::DfsSearch(char cur_head) {
     TWmap tail_map = iter_h->second;
     for (auto iter_t = tail_map.begin(); iter_t != tail_map.end(); ++iter_t) {
         auto&& item_word = m_wmap[cur_head][iter_t->first];
+        if (item_word.GetVisitFlag()) {
+            continue;
+        }
         auto& item_dist = m_dmap[cur_head][iter_t->first];
         m_cur_search_chain.push_back(item_word.GetLongestWord());
-        printf("cur len:%d\n", item_word.GetLongestLen());
-        printf("cur dist:%d\n", item_dist.GetDistance());
+        SE_WORD_CHAIN_LOG("cur len:%d", item_word.GetLongestLen());
+        SE_WORD_CHAIN_LOG("cur dist:%d", item_dist.GetDistance());
         int sum_dist;
         switch (m_type) {
             case word_longest: {
@@ -45,7 +49,9 @@ se_errcode NaiveSearch::DfsSearch(char cur_head) {
             begin_item_dist.SetDistance(sum_dist);
             begin_item_dist.SetWordChain(m_cur_search_chain);
         }
+        item_word.SetVisitFlag(true);
         DfsSearch(iter_t->first);
+        item_word.SetVisitFlag(false);
         switch (m_type) {
             case word_longest: {
                 m_cur_search_len -= 1;
@@ -57,12 +63,11 @@ se_errcode NaiveSearch::DfsSearch(char cur_head) {
         }
         m_cur_search_chain.pop_back();
     }
-    printf("end head:%c\n", cur_head);
+    SE_WORD_CHAIN_LOG("end head:%c", cur_head);
     return SE_OK;
 }
 
 se_errcode NaiveSearch::Search() {
-	/*
 	set<char> word_head_set;
     set<char> word_tail_set;
     for (auto iter_h = m_wmap.begin(); iter_h != m_wmap.end(); ++iter_h) {
@@ -74,13 +79,13 @@ se_errcode NaiveSearch::Search() {
         }
     }
     vector<char> head_vector(word_head_set.size());
-    auto iter_d = std::set_difference(word_head_set.begin(), word_head_set.end(), word_tail_set.begin(), word_tail_set.end(), head_vector.begin());
-    head_vector.resize(iter_d - head_vector.begin());
+    //auto iter_d = std::set_difference(word_head_set.begin(), word_head_set.end(), word_tail_set.begin(), word_tail_set.end(), head_vector.begin());
+    //head_vector.resize(iter_d - head_vector.begin());
+    head_vector.assign(word_head_set.begin(), word_head_set.end());
     for (auto iter = head_vector.begin(); iter != head_vector.end(); ++iter) {
         m_begin_item = *iter;
         DfsSearch(*iter);
-    }
-	*/
+    } 
 	
  
     return SE_OK;

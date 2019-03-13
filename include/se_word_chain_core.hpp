@@ -69,14 +69,31 @@ class WordMapElement {
         int GetLongestLen() const {
             return m_word_set[m_cur_longest_index].size;
         }
+        bool GetVisitFlag() const {
+            if (m_cur_longest_index >= m_word_set.size()) {
+                return false;
+            } else {
+                return m_word_set[m_cur_longest_index].flag;
+            }
+        }
+        void SetVisitFlag(bool _flag) {
+            m_word_set[m_cur_longest_index].flag = _flag;
+            /*if (_flag) {
+                m_cur_longest_index++;
+            } else {
+                m_cur_longest_index--;
+            */
+        }
         string ToString() const;
     private:
         typedef struct _WordElement{
             string data;
             int size;
+            bool flag;
             _WordElement(string _data) {
                 size = _data.size();
                 data = _data;
+                flag = false;
             }
         } WordElement;
         char m_head;
