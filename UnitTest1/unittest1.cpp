@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
-#include "..\include\se_word_chain.hpp"
-#include "..\include\se_word_chain_utils.hpp"
-#include "..\include\se_word_chain_core.hpp"
+#include "se_word_chain.hpp"
+#include "se_word_chain_utils.hpp"
+#include "se_word_chain_core.hpp"
+#include "se_word_chain_core.cpp"
 #include <iostream>
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
+using CCmap = unordered_map<char, unordered_map<char, WordMapElement> >;
 namespace UnitTest1
 {
 	TEST_CLASS(UnitTest1)
@@ -104,6 +106,57 @@ namespace UnitTest1
 			WordMapElement testElement2 = WordMapElement(test2);
 			Assert::AreEqual(testElement2.GetLongestLen(), 6);
 			Assert::AreEqual(testElement2.GetLongestWord(), string("phycho"));
+		}
+
+		TEST_METHOD(Test_AppendWord)
+		{
+			//TEST  AppendWord
+			Word test1 = "a";
+			WordMapElement testElement1 = WordMapElement(test1);
+			Assert::AreEqual(testElement1.GetLongestLen(), 1);
+			Assert::AreEqual(testElement1.GetLongestWord(), string("a"));
+			testElement1.AppendWord("abc");
+			Assert::AreEqual(testElement1.GetLongestLen(), 3);
+			Assert::AreEqual(testElement1.GetLongestWord(), string("abc"));
+			testElement1.AppendWord("ab");
+			Assert::AreEqual(testElement1.GetLongestLen(), 3);
+			Assert::AreEqual(testElement1.GetLongestWord(), string("abc"));
+
+			Word test2 = "phycho";
+			WordMapElement testElement2 = WordMapElement(test2);
+			Assert::AreEqual(testElement2.GetLongestLen(), 6);
+			Assert::AreEqual(testElement2.GetLongestWord(), string("phycho"));
+			testElement2.AppendWord("phy");
+			Assert::AreEqual(testElement2.GetLongestLen(), 6);
+			Assert::AreEqual(testElement2.GetLongestWord(), string("phycho"));
+			testElement2.AppendWord("phyphychocho");
+			Assert::AreEqual(testElement2.GetLongestLen(), 12);
+			Assert::AreEqual(testElement2.GetLongestWord(), string("phyphychocho"));
+		}
+
+		TEST_METHOD(Test_CheckCircle)
+		{
+			//TEST  CheckCircle
+			CCmap wordmap1;
+			vector<string> test1 = { "this","map","does","not","have","circle" };
+			GenerateWordMap(test1, wordmap1);
+			bool hascircle1;
+			CheckCircle(wordmap1, hascircle1);
+			Assert::AreEqual(hascircle1, false);
+
+			CCmap wordmap2;
+			vector<string> test2 = { "this","map","should","have","circles","doesnt","it"};
+			GenerateWordMap(test2, wordmap2);
+			bool hascircle2;
+			CheckCircle(wordmap2, hascircle2);
+			Assert::AreEqual(hascircle2, true);
+
+			CCmap wordmap3;
+			vector<string> test3 = { "this","map","should","not","have","circle","algebra","TNT"};
+			GenerateWordMap(test3, wordmap3);
+			bool hascircle3;
+			CheckCircle(wordmap3, hascircle3);
+			Assert::AreEqual(hascircle3, false);
 		}
 	};
 }
