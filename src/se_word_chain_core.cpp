@@ -62,6 +62,7 @@ se_errcode NaiveSearch::DfsSearch(char cur_head) {
 }
 
 se_errcode NaiveSearch::Search() {
+	/*
 	set<char> word_head_set;
     set<char> word_tail_set;
     for (auto iter_h = m_wmap.begin(); iter_h != m_wmap.end(); ++iter_h) {
@@ -79,6 +80,8 @@ se_errcode NaiveSearch::Search() {
         m_begin_item = *iter;
         DfsSearch(*iter);
     }
+	*/
+	
  
     return SE_OK;
 }
@@ -272,6 +275,17 @@ se_errcode CheckCircle(const unordered_map<char, unordered_map<char, WordMapElem
             }
         }
     }
+	//release self circle
+	for (int i = 0; i < 26; i++) {
+		char target = i + 'a';
+		auto iter = origin_word_map.find(target);
+		if (iter != origin_word_map.end()) {
+			auto iter_temp = iter->second.find(target);
+			if (iter_temp != iter->second.end()) {
+				indegree.find(target)->second -= 1;
+			}
+		}
+	}
     //if there is a point cannot be deleted,the graph has a loop
     has_circle=false;
     for(auto iter=indegree.begin();iter!=indegree.end();iter++){
