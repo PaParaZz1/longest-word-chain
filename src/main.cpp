@@ -10,10 +10,11 @@
 #include <iostream>
 #include <sstream>
 #define MAX_FILE_LEN 512
-
+#define MAX_BUFFER_SIZE 128
 int main(int argc, char** argv) {
     // parse command argument
     // WordList.exe -w -c -h h -t t -r
+	WordChainError handle_error;
     const char usage[] = "Usage: WordList.exe -w/c <input_file> [-h <head>] [-t <tail>] [-r]";
     bool longest_type_flag = false;
     LongestWordChainType longest_type;
@@ -33,8 +34,13 @@ int main(int argc, char** argv) {
                         strcpy(input_file, argv[i]);
                         break;
                     } else {
+						char buffer[MAX_BUFFER_SIZE];
+						sprintf(buffer, "Error Type: invalid longest word chain type, now support--'word' and 'letter'\n");
+						string error_content(buffer);
+						int error_code = SE_INVALID_LONGEST_TYPE;
+						handle_error.AppendInfo(error_code, error_content);
                         fprintf(stderr, "%s\n", usage);
-                        return SE_INVALID_COMMAND_ARGUMENT;
+                        return SE_INVALID_LONGEST_TYPE;
                     }
                 }
                 case 'c': {
@@ -45,8 +51,13 @@ int main(int argc, char** argv) {
                         strcpy(input_file, argv[i]);
                         break;
                     } else {
+						char buffer[MAX_BUFFER_SIZE];
+						sprintf(buffer, "Error Type: invalid longest word chain type, now support--'word' and 'letter'\n");
+						string error_content(buffer);
+						int error_code = SE_INVALID_LONGEST_TYPE;
+						handle_error.AppendInfo(error_code, error_content);
                         fprintf(stderr, "%s\n", usage);
-                        return SE_INVALID_COMMAND_ARGUMENT;
+                        return SE_INVALID_LONGEST_TYPE;
                     }
                 }
                 case 'r': {
@@ -59,6 +70,11 @@ int main(int argc, char** argv) {
                         head = argv[i][0];
                         break;
                     } else {
+						char buffer[MAX_BUFFER_SIZE];
+						sprintf(buffer, "Error Type: invalid command argument\n");
+						string error_content(buffer);
+						int error_code = SE_INVALID_COMMAND_ARGUMENT;
+						handle_error.AppendInfo(error_code, error_content);
                         fprintf(stderr, "%s\n", usage);
                         return SE_INVALID_COMMAND_ARGUMENT;
                     }
@@ -69,23 +85,43 @@ int main(int argc, char** argv) {
                         tail = argv[i][0];
                         break;
                     } else {
+						char buffer[MAX_BUFFER_SIZE];
+						sprintf(buffer, "Error Type: invalid command argument\n");
+						string error_content(buffer);
+						int error_code = SE_INVALID_COMMAND_ARGUMENT;
+						handle_error.AppendInfo(error_code, error_content);
                         fprintf(stderr, "%s\n", usage);
                         return SE_INVALID_COMMAND_ARGUMENT;
                     }
                 }
                 default: {
+					char buffer[MAX_BUFFER_SIZE];
+					sprintf(buffer, "Error Type: invalid command argument\n");
+					string error_content(buffer);
+					int error_code = SE_INVALID_COMMAND_ARGUMENT;
+					handle_error.AppendInfo(error_code, error_content);
                     fprintf(stderr, "%s\n", usage);
                     return SE_INVALID_COMMAND_ARGUMENT;
                 }
             } 
         } else {
+			char buffer[MAX_BUFFER_SIZE];
+			sprintf(buffer, "Error Type: invalid command argument\n");
+			string error_content(buffer);
+			int error_code = SE_INVALID_COMMAND_ARGUMENT;
+			handle_error.AppendInfo(error_code, error_content);
             fprintf(stderr, "%s\n", usage);
             return SE_INVALID_COMMAND_ARGUMENT;
         }
     }
     if (!longest_type_flag) {
+		char buffer[MAX_BUFFER_SIZE];
+		sprintf(buffer, "Error Type: invalid longest word chain type, now support--'word' and 'letter'\n");
+		string error_content(buffer);
+		int error_code = SE_INVALID_LONGEST_TYPE;
+		handle_error.AppendInfo(error_code, error_content);
         fprintf(stderr, "%s\n", usage);
-        return SE_INVALID_COMMAND_ARGUMENT;
+        return SE_INVALID_LONGEST_TYPE;
     }
     if (DEBUG) {
         fprintf(stdout, "cmd argument parse OK!\n");
@@ -108,6 +144,11 @@ int main(int argc, char** argv) {
 	std::stringstream buffer;
 	std::ofstream out(output_file);
 	if (!in.is_open()) {
+		char buffer[MAX_BUFFER_SIZE];
+		sprintf(buffer, "Error Type: can't open input file\n");
+		string error_content(buffer);
+		int error_code = SE_ERROR_OPENING_INPUT_FILE;
+		handle_error.AppendInfo(error_code, error_content);
 		fprintf(stderr, "error opening input file\n");
 		return SE_ERROR_OPENING_INPUT_FILE;
 	} else {
@@ -117,10 +158,14 @@ int main(int argc, char** argv) {
 
     // calculate
     int ret = SE_OK;
-    WordChainError handle_error;
     ret = Calculate(input_text, output_text, longest_type, head, tail, enable_circle, handle_error);
     // output to target file
 	if (!out.is_open()) {
+		char buffer[MAX_BUFFER_SIZE];
+		sprintf(buffer, "Error Type: can't open output file\n");
+		string error_content(buffer);
+		int error_code = SE_ERROR_OPENING_OUTPUT_FILE;
+		handle_error.AppendInfo(error_code, error_content);
 		fprintf(stderr, "error opening output file\n");
 		return SE_ERROR_OPENING_OUTPUT_FILE;
 	} else {

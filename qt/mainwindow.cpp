@@ -9,6 +9,8 @@
 #include "se_word_chain_core.hpp"
 #include "se_word_chain.hpp"
 #include "se_word_chain_core.cpp"
+#include "se_word_chain_utils.hpp"
+#include "se_word_chain_utils.cpp"
 using namespace std;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -76,31 +78,23 @@ void MainWindow::on_pushButton_run_clicked()
 		LongestWordChainType type;
 		se_errcode code;
 		QString s = "fin";
+		WordChainError  error;
 		if (para == 1) {
 			type = word_longest;
-			code=Calculate(content, output,type,head,tail,ring);
+			code=Calculate(content, output,type,head,tail,ring,error);
 		}
 		else {
 			type = letter_longest;
-			code=Calculate(content, output, type, head, tail, ring);
+			code=Calculate(content, output, type, head, tail, ring,error);
 		}
 		if (code == SE_OK) {
 			QString result = QString::fromStdString(output);
 			ui->outputArea->setPlainText(result);
 		}
 		else {
-			QString result;
-			switch (code) {
-				case -1:result = "REPEAT_WORD";break;
-				case -2:result = "HAS_CIRCLE"; break;
-				case -3:result = "INVALID_LONGEST_TYPE"; break;
-				case -4:result = "NO_AVAILABLE_WORD_CHAIN"; break;
-				case -5:result = "INVALID_COMMAND_ARGUMEN"; break;
-				case -6:result = "ERROR_OPENING_INPUT_FILE"; break;
-				case -7:result = "ERROR_OPENING_OUTPUT_FILE"; break;
-				default:result = ""; break;
-			}
-			ui->outputArea->setPlainText(result);
+			string result = error.ToString();
+			QString error= QString::fromStdString(result);
+			ui->outputArea->setPlainText(error);
 		}
     }
     //cout<<"onclick_run"<<endl;

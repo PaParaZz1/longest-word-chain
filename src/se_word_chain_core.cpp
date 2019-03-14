@@ -365,6 +365,11 @@ se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<stri
     bool has_circle;
     CheckCircle(origin_word_map, has_circle, handle_error);
     if (!enable_circle && has_circle) {
+		char buffer[MAX_BUFFER_SIZE];
+		sprintf(buffer, "Error Type: input has circle but not enable circle\n");
+		string error_content(buffer);
+		int error_code = SE_HAS_CIRCLE;
+		handle_error.AppendInfo(error_code, error_content);
         return SE_HAS_CIRCLE;
     }
 
