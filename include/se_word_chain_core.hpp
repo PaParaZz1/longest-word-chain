@@ -78,15 +78,9 @@ class WordMapElement {
         }
         void SetVisitFlag(bool _flag) {
             if (_flag) {
-                if (m_cur_longest_index+1>m_word_set.size()) {
-                    fprintf(stderr, "invalid add flag, cur:%d, total:%d\n", m_cur_longest_index, m_word_set.size());
-                }
                 m_word_set[m_cur_longest_index].flag = _flag;
                 m_cur_longest_index++;
             } else {
-                if (m_cur_longest_index-1<0) {
-                    fprintf(stderr, "invalid sub flag\n");
-                }
                 m_cur_longest_index--;
                 m_word_set[m_cur_longest_index].flag = _flag;
             }  

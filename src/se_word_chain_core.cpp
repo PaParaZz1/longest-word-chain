@@ -154,7 +154,6 @@ se_errcode NaiveSearch::LookUp(vector<string>& output_buffer, const char& head, 
                 }
             }
         } else {
-            printf("find1\n");
             auto tail_find_iter = m_dmap.find(head);
             auto element = tail_find_iter->second.find(tail)->second;
             auto dist = element.GetDistance();
