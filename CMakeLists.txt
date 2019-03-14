@@ -14,6 +14,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -O3")
 SET(CORE_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/se_word_chain_core.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/se_word_chain_utils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/se_word_chain_interface.cpp
 )
 
 SET(ALL_SRC

@@ -161,7 +161,7 @@ class SearchInterface {
     public:
         virtual ~SearchInterface() = 0;
         virtual se_errcode Search() = 0;
-        virtual se_errcode LookUp(vector<string>& output_buffer, const char& head, const char& tail) const = 0;
+        virtual se_errcode LookUp(vector<string>& output_buffer, const char& head, const char& tail, WordChainError& handle_error) const = 0;
 };
 
 class NaiveSearch : public SearchInterface{
@@ -188,7 +188,7 @@ class NaiveSearch : public SearchInterface{
         ~NaiveSearch() {}
         se_errcode Search();
         se_errcode Search(const char& head);
-        se_errcode LookUp(vector<string>& output_buffer, const char& head, const char& tail) const;
+        se_errcode LookUp(vector<string>& output_buffer, const char& head, const char& tail, WordChainError& handle_error) const;
     private:
         HWmap m_wmap;
         HDmap m_dmap;
@@ -203,17 +203,17 @@ string tolower(string str);
 
 template<class T> void PrintMap(const unordered_map<char, unordered_map<char, T> >& input_map);
 
-se_errcode ExtractWord(const string& input_text, vector<string>& input_buffer);
+se_errcode ExtractWord(const string& input_text, vector<string>& input_buffer, WordChainError& handle_error);
 
-se_errcode GenerateWordMap(const vector<string>& input_buffer, unordered_map<char, unordered_map<char, WordMapElement> >& origin_word_map);
+se_errcode GenerateWordMap(const vector<string>& input_buffer, unordered_map<char, unordered_map<char, WordMapElement> >& origin_word_map, WordChainError& handle_error);
 
-se_errcode CheckCircle(const unordered_map<char, unordered_map<char, WordMapElement> >& origin_word_map, bool& has_circle);
+se_errcode CheckCircle(const unordered_map<char, unordered_map<char, WordMapElement> >& origin_word_map, bool& has_circle, WordChainError& handle_error);
 
-se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<string>& output_buffer, const LongestWordChainType& longest_type, const char& head, const char& tail, bool enable_circle);
+se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<string>& output_buffer, const LongestWordChainType& longest_type, const char& head, const char& tail, bool enable_circle, WordChainError& handle_error);
 
-se_errcode OutputTransform(const vector<string>& output_buffer, string& output_text);
+se_errcode OutputTransform(const vector<string>& output_buffer, string& output_text, WordChainError& handle_error);
 
 // public interface
-se_errcode Calculate(const string& input_text, string& output_text, LongestWordChainType& longest_type, const char& head, const char& tail, bool enable_circle);
+se_errcode Calculate(const string& input_text, string& output_text, LongestWordChainType& longest_type, const char& head, const char& tail, bool enable_circle, WordChainError& handle_error);
 
 #endif // SE_WORD_CHAIN_CORE_HPP_

@@ -4,6 +4,7 @@
 #include "se_word_chain.hpp"
 #include "se_word_chain_utils.hpp"
 #include "se_word_chain_core.hpp"
+#define MAX_BUFFER_SIZE 128
 
 using std::vector;
 using std::string;
@@ -28,43 +29,41 @@ se_errcode NaiveSearch::DfsSearch(char cur_head) {
             continue;
         }
         auto& begin_item_dist = m_dmap[m_begin_item][iter_t->first];
-        //while (item_word.HasNext()) {
-            m_cur_search_chain.push_back(item_word.GetLongestWord());
-            SE_WORD_CHAIN_LOG("cur len:%d", item_word.GetLongestLen());
-            SE_WORD_CHAIN_LOG("cur dist:%d", begin_item_dist.GetDistance());
-            int sum_dist;
-            switch (m_type) {
-                case word_longest: {
-                    sum_dist = 1 + m_cur_search_len;
-                    m_cur_search_len += 1;
-                    break;
-                }
-                case letter_longest: {
-                    sum_dist = item_word.GetLongestLen() + m_cur_search_len;
-                    m_cur_search_len += item_word.GetLongestLen();
-                    break;
-                }
+        m_cur_search_chain.push_back(item_word.GetLongestWord());
+        SE_WORD_CHAIN_LOG("cur len:%d", item_word.GetLongestLen());
+        SE_WORD_CHAIN_LOG("cur dist:%d", begin_item_dist.GetDistance());
+        int sum_dist;
+        switch (m_type) {
+            case word_longest: {
+                sum_dist = 1 + m_cur_search_len;
+                m_cur_search_len += 1;
+                break;
             }
-            if (sum_dist > begin_item_dist.GetDistance()) {
-                SE_WORD_CHAIN_LOG("modify:%c===>%c, origin:%d, now:%d", m_begin_item, iter_t->first, begin_item_dist.GetDistance(), sum_dist);
-                begin_item_dist.SetDistance(sum_dist);
-                begin_item_dist.SetWordChain(m_cur_search_chain);
-                SE_WORD_CHAIN_LOG("after modify:%c===>%c, origin:%d, now:%d", m_begin_item, iter_t->first, begin_item_dist.GetDistance(), sum_dist);
+            case letter_longest: {
+                sum_dist = item_word.GetLongestLen() + m_cur_search_len;
+                m_cur_search_len += item_word.GetLongestLen();
+                break;
             }
-            item_word.SetVisitFlag(true);
-            DfsSearch(iter_t->first);
-            item_word.SetVisitFlag(false);
-            switch (m_type) {
-                case word_longest: {
-                    m_cur_search_len -= 1;
-                    break;
-                }
-                case letter_longest: {
-                    m_cur_search_len -= item_word.GetLongestLen();
-                }
+        }
+        if (sum_dist > begin_item_dist.GetDistance()) {
+            SE_WORD_CHAIN_LOG("modify:%c===>%c, origin:%d, now:%d", m_begin_item, iter_t->first, begin_item_dist.GetDistance(), sum_dist);
+            begin_item_dist.SetDistance(sum_dist);
+            begin_item_dist.SetWordChain(m_cur_search_chain);
+            SE_WORD_CHAIN_LOG("after modify:%c===>%c, origin:%d, now:%d", m_begin_item, iter_t->first, begin_item_dist.GetDistance(), sum_dist);
+        }
+        item_word.SetVisitFlag(true);
+        DfsSearch(iter_t->first);
+        item_word.SetVisitFlag(false);
+        switch (m_type) {
+            case word_longest: {
+                m_cur_search_len -= 1;
+                break;
             }
-            m_cur_search_chain.pop_back();
-        //}
+            case letter_longest: {
+                m_cur_search_len -= item_word.GetLongestLen();
+            }
+        }
+        m_cur_search_chain.pop_back();
     }
     SE_WORD_CHAIN_LOG("end head:%c", cur_head);
     //PrintMap<DistanceElement>(m_dmap);
@@ -101,7 +100,7 @@ se_errcode NaiveSearch::Search(const char& head) {
     return SE_OK;
 }
 
-se_errcode NaiveSearch::LookUp(vector<string>& output_buffer, const char& head, const char& tail) const {
+se_errcode NaiveSearch::LookUp(vector<string>& output_buffer, const char& head, const char& tail, WordChainError& handle_error) const {
     if (DEBUG) {
         PrintMap<DistanceElement>(m_dmap);
     }
@@ -166,7 +165,11 @@ se_errcode NaiveSearch::LookUp(vector<string>& output_buffer, const char& head, 
     }
 
     if (temp_head_longest == 0) {
-        fprintf(stderr, "no available word chain for head(%c) and tail(%c)\n", head, tail);
+        char buffer[MAX_BUFFER_SIZE];
+        sprintf(buffer, "no available word chain for head(%c) and tail(%c)\n", head ? head : '0' , tail ? tail : '0');
+        string error_content(buffer);
+        int error_code = SE_NO_AVAILABLE_WORD_CHAIN;
+        handle_error.AppendInfo(error_code, error_content);
         return SE_NO_AVAILABLE_WORD_CHAIN;
     } else {
         auto tail_map_iter = m_dmap.find(longest_head);
@@ -182,7 +185,7 @@ string tolower(string str){
     return str;
 }
 
-se_errcode ExtractWord(const string& input_text, vector<string>& input_buffer) {
+se_errcode ExtractWord(const string& input_text, vector<string>& input_buffer, WordChainError& handle_error) {
     /*
      * Brief:
      *     extract all the correct word in the input, transform it into lower case letters and store it in input buffer
@@ -213,7 +216,7 @@ se_errcode ExtractWord(const string& input_text, vector<string>& input_buffer) {
     return SE_OK;
 }
 
-se_errcode GenerateWordMap(const vector<string>& input_buffer, unordered_map<char, unordered_map<char, WordMapElement> >& origin_word_map) {
+se_errcode GenerateWordMap(const vector<string>& input_buffer, unordered_map<char, unordered_map<char, WordMapElement> >& origin_word_map, WordChainError& handle_error) {
     se_errcode ret = SE_OK;
 
     for (auto iter = input_buffer.begin(); iter != input_buffer.end(); ++iter) {
@@ -231,7 +234,11 @@ se_errcode GenerateWordMap(const vector<string>& input_buffer, unordered_map<cha
                 tail_map.insert(Cmap::value_type(word_item.GetTail(), WordMapElement(word_item)));
             } else {
                 if ((ret = tail_find_flag->second.AppendWord(word_item.GetWord())) != SE_OK) {
-                    fprintf(stderr, "repeat word: %s\n", word_item.GetWord().c_str());
+                    char buffer[MAX_BUFFER_SIZE];
+                    sprintf(buffer, "repeat word: %s\n", word_item.GetWord().c_str());
+                    string error_content(buffer);
+                    int error_code = SE_NO_AVAILABLE_WORD_CHAIN;
+                    handle_error.AppendInfo(error_code, error_content);
                 }
             }
         }
@@ -239,7 +246,7 @@ se_errcode GenerateWordMap(const vector<string>& input_buffer, unordered_map<cha
     return ret;
 }
 
-se_errcode CheckCircle(const unordered_map<char, unordered_map<char, WordMapElement> >& origin_word_map, bool& has_circle) {
+se_errcode CheckCircle(const unordered_map<char, unordered_map<char, WordMapElement> >& origin_word_map, bool& has_circle, WordChainError& handle_error) {
     /*
      * Brief:
      *     check whether there is circle in map
@@ -313,7 +320,7 @@ se_errcode CheckCircle(const unordered_map<char, unordered_map<char, WordMapElem
     return SE_OK;
 }
 
-se_errcode ChainSearch(const unordered_map<char, unordered_map<char, WordMapElement> >& origin_word_map, vector<string>& output_buffer, const LongestWordChainType& longest_type, const char& head, const char& tail) {
+se_errcode ChainSearch(const unordered_map<char, unordered_map<char, WordMapElement> >& origin_word_map, vector<string>& output_buffer, const LongestWordChainType& longest_type, const char& head, const char& tail, WordChainError& handle_error) {
     int ret = SE_OK;
     SearchInterface* handle_search = NULL;
     int search_type = 0;
@@ -328,19 +335,24 @@ se_errcode ChainSearch(const unordered_map<char, unordered_map<char, WordMapElem
             }
             break;
         }   
-        default:
-            fprintf(stderr, "not support search algorithm\n");
+        default: {
+            char buffer[MAX_BUFFER_SIZE];
+            sprintf(buffer, "not support search algorithm\n");
+            string error_content(buffer);
+            int error_code = SE_NO_AVAILABLE_WORD_CHAIN;
+            handle_error.AppendInfo(error_code, error_content);
+        }
     }
-    ret = handle_search->LookUp(output_buffer, head, tail);
+    ret = handle_search->LookUp(output_buffer, head, tail, handle_error);
     delete(handle_search);
     return ret;
 }
 
-se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<string>& output_buffer, const LongestWordChainType& longest_type, const char& head, const char& tail, bool enable_circle) {
+se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<string>& output_buffer, const LongestWordChainType& longest_type, const char& head, const char& tail, bool enable_circle, WordChainError& handle_error) {
     CCmap origin_word_map;
     se_errcode ret = SE_OK;
     // generate word map
-    ret = GenerateWordMap(input_buffer, origin_word_map);
+    ret = GenerateWordMap(input_buffer, origin_word_map, handle_error);
     switch (ret) {
         case SE_REPEAT_WORD: ret = SE_OK;// fall through
         case SE_OK: break;
@@ -351,7 +363,7 @@ se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<stri
     }
     // check circle
     bool has_circle;
-    CheckCircle(origin_word_map, has_circle);
+    CheckCircle(origin_word_map, has_circle, handle_error);
     if (!enable_circle && has_circle) {
         return SE_HAS_CIRCLE;
     }
@@ -361,18 +373,22 @@ se_errcode CalculateLongestChain(const vector<string>& input_buffer, vector<stri
         case word_longest:
             // fall through
         case letter_longest: {
-            ret = ChainSearch(origin_word_map, output_buffer, longest_type, head, tail);
+            ret = ChainSearch(origin_word_map, output_buffer, longest_type, head, tail, handle_error);
             break;
         }
         default: {
-            fprintf(stderr, "invalid longest_type argument: %d\n", longest_type);
+            char buffer[MAX_BUFFER_SIZE];
+            sprintf(buffer, "invalid longest_type argument: %d\n", longest_type);
+            string error_content(buffer);
+            int error_code = SE_NO_AVAILABLE_WORD_CHAIN;
+            handle_error.AppendInfo(error_code, error_content);
             return SE_INVALID_LONGEST_TYPE;
         }
     }
     return ret;
 }
 
-se_errcode OutputTransform(const vector<string>& output_buffer, string& output_text) {
+se_errcode OutputTransform(const vector<string>& output_buffer, string& output_text, WordChainError& handle_error) {
     /*
      * Brief:
      *     transform word into output text
@@ -390,19 +406,19 @@ se_errcode OutputTransform(const vector<string>& output_buffer, string& output_t
     return SE_OK;
 }
 
-se_errcode Calculate(const string& input_text, string& output_text, LongestWordChainType& longest_type, const char& head, const char& tail, bool enable_circle) {
+se_errcode Calculate(const string& input_text, string& output_text, LongestWordChainType& longest_type, const char& head, const char& tail, bool enable_circle, WordChainError& handle_error) {
     int ret = SE_OK;
     vector<string> input_buffer;
     vector<string> output_buffer;
-    if ((ret = ExtractWord(input_text, input_buffer)) != SE_OK) {
+    if ((ret = ExtractWord(input_text, input_buffer, handle_error)) != SE_OK) {
         goto ERROR_CAL;
     }
 
-    if ((ret = CalculateLongestChain(input_buffer, output_buffer, longest_type, head, tail, enable_circle)) != SE_OK) {
+    if ((ret = CalculateLongestChain(input_buffer, output_buffer, longest_type, head, tail, enable_circle, handle_error)) != SE_OK) {
         goto ERROR_CAL;
     }
 
-    if ((ret = OutputTransform(output_buffer, output_text)) != SE_OK) {
+    if ((ret = OutputTransform(output_buffer, output_text, handle_error)) != SE_OK) {
         goto ERROR_CAL;
     }
     return SE_OK;

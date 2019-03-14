@@ -1,13 +1,14 @@
 /*
  * command line entrance for longest word chain 
  */
+#include "se_word_chain.hpp"
+#include "se_word_chain_core.hpp"
+#include "se_word_chain_utils.hpp"
 #include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include "se_word_chain.hpp"
-#include "se_word_chain_core.hpp"
 #define MAX_FILE_LEN 512
 
 int main(int argc, char** argv) {
@@ -116,9 +117,8 @@ int main(int argc, char** argv) {
 
     // calculate
     int ret = SE_OK;
-    if ((ret = Calculate(input_text, output_text, longest_type, head, tail, enable_circle)) != SE_OK) {
-        goto ERROR_MAIN;
-    }
+    WordChainError handle_error;
+    ret = Calculate(input_text, output_text, longest_type, head, tail, enable_circle, handle_error);
     // output to target file
 	if (!out.is_open()) {
 		fprintf(stderr, "error opening output file\n");
