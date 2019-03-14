@@ -71,22 +71,32 @@ class WordMapElement {
         }
         bool GetVisitFlag() const {
             if (m_cur_longest_index >= m_word_set.size()) {
-                return false;
+                return true;
             } else {
                 return m_word_set[m_cur_longest_index].flag;
             }
         }
         void SetVisitFlag(bool _flag) {
-            m_word_set[m_cur_longest_index].flag = _flag;
-            /*if (_flag) {
+            if (_flag) {
+                if (m_cur_longest_index+1>m_word_set.size()) {
+                    fprintf(stderr, "invalid add flag, cur:%d, total:%d\n", m_cur_longest_index, m_word_set.size());
+                }
+                m_word_set[m_cur_longest_index].flag = _flag;
                 m_cur_longest_index++;
             } else {
+                if (m_cur_longest_index-1<0) {
+                    fprintf(stderr, "invalid sub flag\n");
+                }
                 m_cur_longest_index--;
-            */
+                m_word_set[m_cur_longest_index].flag = _flag;
+            }  
         }
 		int GetSetSize() {
 			return m_word_set.size();
 		}
+        bool HasNext() const {
+            return m_cur_longest_index < m_word_set.size();
+        }
         string ToString() const;
     private:
         typedef struct _WordElement{
@@ -146,7 +156,6 @@ class DistanceElement{
             return m_word_distance;
         }
         void SetWordDistance(int distance) {
-            printf("call word\n");
             m_word_distance = distance;
         }
         void SetLetterDistance(int distance) {

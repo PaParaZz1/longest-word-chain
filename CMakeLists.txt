@@ -20,7 +20,7 @@ SET(ALL_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
 )
 
-ADD_EXECUTABLE(Wordlist.exe
+ADD_EXECUTABLE(Wordlist
     ${ALL_SRC}
 )
 

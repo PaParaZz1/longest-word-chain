@@ -1,1 +1,1 @@
-./Wordlist.exe -w data/test2.txt
+./Wordlist -w data/test2.txt

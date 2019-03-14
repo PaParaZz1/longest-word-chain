@@ -14,7 +14,6 @@ using Dmap = unordered_map<char, int>;
 SearchInterface::~SearchInterface() {}
 
 se_errcode NaiveSearch::DfsSearch(char cur_head) {
-    //printf("cur head:%c\n", cur_head);
     SE_WORD_CHAIN_LOG("cur head:%c", cur_head);
     auto iter_h = m_wmap.find(cur_head);
     if (iter_h == m_wmap.end()) {
@@ -24,49 +23,51 @@ se_errcode NaiveSearch::DfsSearch(char cur_head) {
     TWmap tail_map = iter_h->second;
     int count = 0;
     for (auto iter_t = tail_map.begin(); iter_t != tail_map.end(); ++iter_t) {
-        auto&& item_word = m_wmap[cur_head][iter_t->first];
+        auto& item_word = m_wmap[cur_head][iter_t->first];
         if (item_word.GetVisitFlag()) {
             continue;
         }
         auto& begin_item_dist = m_dmap[m_begin_item][iter_t->first];
-        m_cur_search_chain.push_back(item_word.GetLongestWord());
-        SE_WORD_CHAIN_LOG("cur len:%d", item_word.GetLongestLen());
-        SE_WORD_CHAIN_LOG("cur dist:%d", begin_item_dist.GetDistance());
-        int sum_dist;
-        switch (m_type) {
-            case word_longest: {
-                sum_dist = 1 + m_cur_search_len;
-                m_cur_search_len += 1;
-                break;
+        //while (item_word.HasNext()) {
+            m_cur_search_chain.push_back(item_word.GetLongestWord());
+            SE_WORD_CHAIN_LOG("cur len:%d", item_word.GetLongestLen());
+            SE_WORD_CHAIN_LOG("cur dist:%d", begin_item_dist.GetDistance());
+            int sum_dist;
+            switch (m_type) {
+                case word_longest: {
+                    sum_dist = 1 + m_cur_search_len;
+                    m_cur_search_len += 1;
+                    break;
+                }
+                case letter_longest: {
+                    sum_dist = item_word.GetLongestLen() + m_cur_search_len;
+                    m_cur_search_len += item_word.GetLongestLen();
+                    break;
+                }
             }
-            case letter_longest: {
-                sum_dist = item_word.GetLongestLen() + m_cur_search_len;
-                m_cur_search_len += item_word.GetLongestLen();
-                break;
+            if (sum_dist > begin_item_dist.GetDistance()) {
+                SE_WORD_CHAIN_LOG("modify:%c===>%c, origin:%d, now:%d", m_begin_item, iter_t->first, begin_item_dist.GetDistance(), sum_dist);
+                begin_item_dist.SetDistance(sum_dist);
+                begin_item_dist.SetWordChain(m_cur_search_chain);
+                SE_WORD_CHAIN_LOG("after modify:%c===>%c, origin:%d, now:%d", m_begin_item, iter_t->first, begin_item_dist.GetDistance(), sum_dist);
             }
-        }
-        if (sum_dist > begin_item_dist.GetDistance()) {
-            SE_WORD_CHAIN_LOG("modify:%c===>%c, origin:%d, now:%d", m_begin_item, iter_t->first, begin_item_dist.GetDistance(), sum_dist);
-            begin_item_dist.SetDistance(sum_dist);
-            begin_item_dist.SetWordChain(m_cur_search_chain);
-            SE_WORD_CHAIN_LOG("after modify:%c===>%c, origin:%d, now:%d", m_begin_item, iter_t->first, begin_item_dist.GetDistance(), sum_dist);
-        }
-        item_word.SetVisitFlag(true);
-        DfsSearch(iter_t->first);
-        item_word.SetVisitFlag(false);
-        switch (m_type) {
-            case word_longest: {
-                m_cur_search_len -= 1;
-                break;
+            item_word.SetVisitFlag(true);
+            DfsSearch(iter_t->first);
+            item_word.SetVisitFlag(false);
+            switch (m_type) {
+                case word_longest: {
+                    m_cur_search_len -= 1;
+                    break;
+                }
+                case letter_longest: {
+                    m_cur_search_len -= item_word.GetLongestLen();
+                }
             }
-            case letter_longest: {
-                m_cur_search_len -= item_word.GetLongestLen();
-            }
-        }
-        m_cur_search_chain.pop_back();
+            m_cur_search_chain.pop_back();
+        //}
     }
     SE_WORD_CHAIN_LOG("end head:%c", cur_head);
-    PrintMap<DistanceElement>(m_dmap);
+    //PrintMap<DistanceElement>(m_dmap);
     return SE_OK;
 }
 

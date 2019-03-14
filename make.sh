@@ -3,5 +3,5 @@ mkdir build_temp_dir
 cd build_temp_dir
 cmake ..
 make -j4
-cp Wordlist.exe ../
+cp Wordlist ../
 cp libCore.* ../
