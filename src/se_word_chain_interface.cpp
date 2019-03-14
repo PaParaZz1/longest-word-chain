@@ -13,12 +13,12 @@ void StringSplit(const string& input, vector<string>& result, const string& s) {
     pos2 = input.find(s);
     size_t s_size = s.size();
     while (pos2 != string::npos) {
-        result.__emplace_back(input.substr(pos1, pos2));
+        result.push_back(input.substr(pos1, pos2));
         pos1 = pos2 + s_size;
         pos2 = input.find(s, pos1);
     }
     if (pos1 != input.size()) {
-        result.__emplace_back(input.substr(pos1));
+        result.push_back(input.substr(pos1));
     }
 }
 
